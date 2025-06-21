@@ -1,0 +1,34 @@
+{
+  "model_type": "qwen2.5vl",
+  "backend": "vllm",
+  "generation_config": {
+    "max_new_tokens": 1536,
+    "do_sample": false,
+    "temperature": 0.0
+  },
+  "vllm_config": {
+    "gpu_memory_utilization": 0.95,
+    "max_model_len": 32768,
+    "tensor_parallel_size": 1,
+    "limit_mm_per_prompt": {
+      "image": 6,
+      "video": 1
+    },
+    "trust_remote_code": true,
+    "dtype": "bfloat16",
+    "enable_prefix_caching": true,
+    "enable_chunked_prefill": true,
+    "max_num_seqs": 32,
+    "block_size": 32
+  },
+  "single_gpu": false,
+  "torch_dtype": "bfloat16",
+  "batch_size": 16,
+  "notes": {
+    "description": "vLLM configuration for accelerating Qwen2.5-VL multi-image inference",
+    "memory_usage": "High memory utilization at 95% for maximum acceleration",
+    "multimodal": "Supports up to 4 images input without restrictions",
+    "output_limit": "Output limited to 1536 tokens",
+    "batch_tokens": "Removed max_num_batched_tokens to allow vLLM auto-management for long inputs"
+  }
+} 

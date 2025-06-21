@@ -1,0 +1,10 @@
+checkpoints/
+data*/
+logs/
+temp/
+tmp/
+tmp*/
+*.logs
+**__pycache__**
+Qwen2.5-VL/
+*.log
