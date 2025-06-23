@@ -18,13 +18,11 @@ TRAINING_SCRIPT="${SFT_DIR}/train_qwen_sft.sh"
 # Task list - EASILY CONFIGURABLE
 # Add or remove tasks here as needed
 TASKS=(
-    # "raw_qa"
-    # "aug_cgmap_out"
-    # "plain_cgmap_out"
-    # "ff_rsn"
-    # "aug_cgmap_ffr_out"
-    
-    # extra experiments
+    "raw_qa"
+    "aug_cgmap_out"
+    "plain_cgmap_out"
+    "ff_rsn"
+    "aug_cgmap_ffr_out"
     "plain_cgmap_ffr_out"
 )
 

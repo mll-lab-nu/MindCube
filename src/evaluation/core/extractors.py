@@ -53,7 +53,6 @@ def extract_answer(text: str) -> Optional[str]:
     patterns = [
         r'(?:Answer: )?([A-E])\. [A-Za-z0-9 \-\(\)\'",]+(?=(?:\n|$|\.|"))',  # Full answer with description
         r'(?:Answer: )?([A-E])\. [A-Za-z0-9 \-\(\)\'"]+',  # Answer with partial description
-        r'(?:Answer: )?([A-E])(?:\.|$|\s)',  # Answer with punctuation or whitespace
         r'(?:^|\n)(?:Answer: )?([A-E])(?:\.|$|\s)',  # Answer at line beginning
         r'[\*\"]([A-E])[\*\"]',  # Answer in quotes or asterisks
         r'\bAnswer:?\s*([A-E])\b',  # Answer following "Answer:"

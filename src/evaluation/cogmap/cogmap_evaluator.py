@@ -43,6 +43,26 @@ class CogMapEvaluator:
             include_detailed_metrics: Whether to include detailed similarity metrics
         """
         self.include_detailed_metrics = include_detailed_metrics
+    
+    def _preserve_necessary_cogmap_fields(self, results: Dict) -> Dict:
+        """
+        Preserve necessary fields in the results dictionary.
+        """
+        new_cogmap_results = {
+            "parsable_json_count": results['cogmap_similarity']['parsable_json_count'],
+            "parsable_json_accuracy": round(results['cogmap_similarity']['parsable_json_count'] / results['total'], 4),
+            "valid_count": results['cogmap_similarity']['total_valid'],
+            "valid_accuracy": round(results['cogmap_similarity']['total_valid'] / results['total'], 4),
+            "isomorphic_count": results['cogmap_similarity']['isomorphic_count'],
+            "isomorphic_accuracy": round(results['cogmap_similarity']['isomorphic_count'] / results['total'], 4),
+            "avg_overall_similarity": round(results['cogmap_similarity']['avg_overall_similarity'], 4),
+            "avg_facing_similarity": round(results['cogmap_similarity']['avg_facing_similarity'], 4),
+            "avg_directional_similarity": round(results['cogmap_similarity']['avg_directional_similarity'], 4),
+            "rotation_distribution": results['cogmap_similarity']['rotation_distribution']
+        }
+        results['cogmap_similarity'] = new_cogmap_results
+        results['gen_cogmap_accuracy'] = round(results['gen_cogmap_accuracy'], 4)
+        return results
         
     def evaluate(self, jsonl_path: str, output_path: Optional[str] = None) -> Dict:
         """
@@ -123,6 +143,8 @@ class CogMapEvaluator:
         # Finalize cognitive map metrics if detailed metrics enabled
         if self.include_detailed_metrics:
             self._finalize_cogmap_metrics(results, total_similarity_metrics)
+        
+            results = self._preserve_necessary_cogmap_fields(results)
         
         # Create final result structure
         final_results = {

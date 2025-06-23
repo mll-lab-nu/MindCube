@@ -189,11 +189,15 @@ for i in "${!eval_files[@]}"; do
     status="${eval_results[i]}"
     accuracy="${eval_accuracies[i]}"
     
+    # Remove "MindCube_tinybench_" prefix if present
+    display_file="${file}"
+    if [[ "${display_file}" == MindCube_tinybench_* ]]; then
+        display_file="${display_file#MindCube_tinybench_}"
+    fi
+    
     # Truncate filename if too long
-    if [ ${#file} -gt 47 ]; then
-        display_file="${file:0:44}..."
-    else
-        display_file="${file}"
+    if [ ${#display_file} -gt 47 ]; then
+        display_file="${display_file:0:44}..."
     fi
     
     # Color coding for status

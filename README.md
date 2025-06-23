@@ -138,6 +138,13 @@ python scripts/data_processing.py \
 python scripts/data_processing.py \
   --input data/raw/MindCube_train.jsonl \
   --task full_pipeline
+python scripts/data_processing.py \
+  --input data/raw/Tinybench_rule_based_processed_1_interval.jsonl \
+  --task full_pipeline
+python scripts/data_processing.py \
+  --input data/raw/Tinybench_rule_based_processed_2_interval.jsonl \
+  --task full_pipeline
+
 # Output: ./data/scaffold/all/MindCube_tinybench.jsonl
 # Contains: cognitive_map + reasoning_chain + all original fields
 ```
@@ -168,6 +175,13 @@ python scripts/generate_prompts.py \
 python scripts/generate_prompts.py \
   --input data/scaffold/all/MindCube_train.jsonl \
   --all_tasks
+
+python scripts/generate_prompts.py \
+  --input data/scaffold/all/Tinybench_rule_based_processed_1_interval.jsonl \
+  --all_tasks
+python scripts/generate_prompts.py \
+  --input data/scaffold/all/Tinybench_rule_based_processed_2_interval.jsonl \
+  --raw_qa
 
 # Output: ./data/prompts/general/
 # Generates: MindCube_tinybench_{task_name}.jsonl (8 files)
