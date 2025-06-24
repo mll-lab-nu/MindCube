@@ -9,20 +9,20 @@
 
 </div>
 <p align="center">
-    <a href="https://limanling.github.io/">Baiqiao Yin<sup>1, 4*</sup></a>, 
-    <a href="https://www.linkedin.com/in/shiyu-zhao-1124a0266/">Qineng Wang<sup>1*</sup></a>, 
-    <a href="https://qinengwang-aiden.github.io/">Pingyue Zhang<sup>1</sup></a>, 
-    <a href="https://jameskrw.github.io/">Jianshu Zhang<sup>1</sup></a>, 
-    <a href="https://bryanzhou008.github.io/">Kangrui Wang<sup>1</sup></a>, 
-    <a href="https://example.com/sanjana-srivastava">Zihan Wang<sup>1</sup></a>, 
-    <a href="https://example.com/cem-gokmen">Jieyu Zhang<sup>3</sup></a>, 
-    <a href="https://example.com/tony-lee">Keshigeyan Chandrasegaran<sup>2</sup></a>, 
-    <a href="https://sites.google.com/site/lieranli/">Han Liu<sup>1</sup></a>, 
-    <a href="https://example.com/ruohan-zhang">Ranjay Krishna<sup>3</sup></a>, 
-    <a href="https://example.com/weiyu-liu">Saining Xie<sup>4</sup></a>, 
-    <a href="https://profiles.stanford.edu/fei-fei-li">Manling Li†<sup>1</sup></a>, 
-    <a href="https://jiayuanm.com/">Jiajun Wu<sup>2†</sup></a>, 
-    <a href="https://jiajunwu.com/">Li Fei-Fei<sup>2†</sup></a>
+    <a href="https://openreview.net/profile?id=~Baiqiao_Yin2">Baiqiao Yin<sup>1, 4*</sup></a>, 
+    <a href="https://qinengwang-aiden.github.io/">Qineng Wang<sup>1*</sup></a>, 
+    <a href="https://williamzhangsjtu.github.io/">Pingyue Zhang<sup>1</sup></a>, 
+    <a href="https://sterzhang.github.io/">Jianshu Zhang<sup>1</sup></a>, 
+    <a href="https://jameskrw.github.io/">Kangrui Wang<sup>1</sup></a>, 
+    <a href="https://zihanwang314.github.io/">Zihan Wang<sup>1</sup></a>, 
+    <a href="https://jieyuz2.github.io/">Jieyu Zhang<sup>3</sup></a>, 
+    <a href="https://keshik6.github.io/">Keshigeyan Chandrasegaran<sup>2</sup></a>, 
+    <a href="https://www.mccormick.northwestern.edu/research-faculty/directory/profiles/liu-han.html">Han Liu<sup>1</sup></a>, 
+    <a href="https://ranjaykrishna.com/index.html">Ranjay Krishna<sup>3</sup></a>, 
+    <a href="https://www.sainingxie.com/">Saining Xie<sup>4</sup></a>, 
+    <a href="https://limanling.github.io/">Manling Li†<sup>1</sup></a>, 
+    <a href="https://jiajunwu.com/">Jiajun Wu<sup>2†</sup></a>, 
+    <a href="https://profiles.stanford.edu/fei-fei-li">Li Fei-Fei<sup>2†</sup></a>
 </p>
 <p align="center">*Equal contribution, †Equal advising</p>
 <p align="center"><sup>1</sup>Northwestern University, <sup>2</sup>Stanford University, <sup>3</sup>University of Washington, <sup>4</sup>New York University</p>
