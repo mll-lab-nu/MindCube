@@ -1,4 +1,4 @@
-<h1 align="center">Spatial Mental Modeling from Limited Views</h1>
+<h1 align="center">MindCube: Spatial Mental Modeling from Limited Views</h1>
 <!-- Badges -->
 <div align="center">
 
