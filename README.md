@@ -1,5 +1,4 @@
-# Spatial Mental Modeling from Limited Views
-
+<h1 align="center">Spatial Mental Modeling from Limited Views</h1>
 <!-- Badges -->
 <div align="center">
 
