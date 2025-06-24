@@ -1,0 +1,8 @@
+transformers==4.51.3
+accelerate==1.6.0
+datasets==3.6.0
+deepspeed==0.16.4
+torchcodec==0.2.0
+decord==0.6.0
+tqdm
+matplotlib

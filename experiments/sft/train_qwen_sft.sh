@@ -5,25 +5,49 @@
 # Independent training script for different MindCube tasks
 # ==============================================================================
 
-# Check if a config file is provided
-CONFIG_FILE=${1:-""}
-if [[ -n "$CONFIG_FILE" && -f "$CONFIG_FILE" ]]; then
-    echo "Loading configuration from: $CONFIG_FILE"
-    source "$CONFIG_FILE"
+# Get script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Check if a task config file is provided (handle both relative and absolute paths)
+TASK_CONFIG_FILE=${1:-""}
+HARDWARE_CONFIG_FILE="${SCRIPT_DIR}/config_hardware.sh"
+
+# If task config is provided as relative path, make it relative to script directory
+if [[ -n "$TASK_CONFIG_FILE" && ! "$TASK_CONFIG_FILE" = /* ]]; then
+    # If it doesn't start with experiments/sft, prepend it
+    if [[ ! "$TASK_CONFIG_FILE" == experiments/sft/* ]]; then
+        TASK_CONFIG_FILE="${SCRIPT_DIR}/${TASK_CONFIG_FILE}"
+    else
+        # If it starts with experiments/sft, make it relative to project root
+        TASK_CONFIG_FILE="${PROJECT_ROOT}/${TASK_CONFIG_FILE}"
+    fi
+fi
+
+# Load hardware configuration first (always required)
+if [[ -f "$HARDWARE_CONFIG_FILE" ]]; then
+    echo "Loading hardware configuration from: $HARDWARE_CONFIG_FILE"
+    source "$HARDWARE_CONFIG_FILE"
 else
-    echo "Using default configuration"
-    # Default configuration
-    TASK_NAME="cog_reasoning"
-    DATASET_NAME="cog_reasoning_sft"
+    echo "❌ Hardware configuration file '$HARDWARE_CONFIG_FILE' not found!"
+    echo "Please create the hardware configuration file at: experiments/sft/config_hardware.sh"
+    exit 1
+fi
+
+# Load task configuration
+if [[ -n "$TASK_CONFIG_FILE" && -f "$TASK_CONFIG_FILE" ]]; then
+    echo "Loading task configuration from: $TASK_CONFIG_FILE"
+    source "$TASK_CONFIG_FILE"
+else
+    echo "Using default task configuration"
+    # Default task configuration
+    TASK_NAME="raw_qa"
+    DATASET_NAME="raw_qa"
     MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
     LEARNING_RATE=1e-5
-    BATCH_SIZE=4
-    GRAD_ACCUM_STEPS=32
     NUM_EPOCHS=3
-    GPU_DEVICES="0,1,2,3"
-    NUM_PROCESSES=4
     OUTPUT_BASE_DIR="experiments/sft/results"
-    RUN_NAME="qwen2vl-baseline-${TASK_NAME}_sft"
+    RUN_NAME="qwen2vl-${TASK_NAME}_sft"
     MAX_PIXELS=90000
     MIN_PIXELS=784
     MODEL_MAX_LENGTH=8192
@@ -31,9 +55,15 @@ else
     SAVE_TOTAL_LIMIT=12
 fi
 
-# Change to MindCube project root directory (07_MindCube_new)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# Validate that hardware parameters are set
+if [[ -z "$GPU_DEVICES" || -z "$NUM_PROCESSES" || -z "$BATCH_SIZE" || -z "$GRAD_ACCUM_STEPS" ]]; then
+    echo "❌ Hardware configuration incomplete!"
+    echo "Missing parameters: GPU_DEVICES, NUM_PROCESSES, BATCH_SIZE, or GRAD_ACCUM_STEPS"
+    echo "Please check your config_hardware.sh file."
+    exit 1
+fi
+
+# Change to MindCube project root directory
 cd "$PROJECT_ROOT"
 echo "Project root: $PROJECT_ROOT"
 
@@ -45,10 +75,10 @@ NPROC_PER_NODE=${NPROC_PER_NODE:-$NUM_PROCESSES}
 export CUDA_VISIBLE_DEVICES=$GPU_DEVICES
 
 # DeepSpeed configuration (using absolute path from project root)
-deepspeed=${PROJECT_ROOT}/Qwen2.5-VL/qwen-vl-finetune/scripts/zero3.json
+deepspeed=${PROJECT_ROOT}/Qwen2.5-VL-MindCube/qwen-vl-finetune/scripts/zero3.json
 
 # Training entry point (using absolute path from project root)
-entry_file=${PROJECT_ROOT}/Qwen2.5-VL/qwen-vl-finetune/qwenvl/train/train_qwen.py
+entry_file=${PROJECT_ROOT}/Qwen2.5-VL-MindCube/qwen-vl-finetune/qwenvl/train/train_qwen.py
 
 # Output directory
 output_dir=${PROJECT_ROOT}/${OUTPUT_BASE_DIR}/${TASK_NAME}/
@@ -97,12 +127,19 @@ Training Configuration:
 - Dataset: ${DATASET_NAME}
 - Run name: ${RUN_NAME}
 - Output directory: ${output_dir}
-- Learning rate: ${LEARNING_RATE}
-- Batch size: ${BATCH_SIZE}
-- Gradient accumulation steps: ${GRAD_ACCUM_STEPS}
-- Number of epochs: ${NUM_EPOCHS}
+
+Hardware Configuration:
 - GPUs: ${CUDA_VISIBLE_DEVICES}
-- Number of processes per node: ${NPROC_PER_NODE}
+- Number of processes: ${NPROC_PER_NODE}
+- Batch size per device: ${BATCH_SIZE}
+- Gradient accumulation steps: ${GRAD_ACCUM_STEPS}
+- Total effective batch size: $((BATCH_SIZE * NUM_PROCESSES * GRAD_ACCUM_STEPS))
+
+Training Hyperparameters:
+- Learning rate: ${LEARNING_RATE}
+- Number of epochs: ${NUM_EPOCHS}
+- Max pixels: ${MAX_PIXELS}
+- Model max length: ${MODEL_MAX_LENGTH}
 =============================================================================="
 
 # Verify that Qwen's data configuration has been patched with MindCube datasets
@@ -131,6 +168,7 @@ torchrun --nproc_per_node=${NPROC_PER_NODE} \
 
 if [ $? -eq 0 ]; then
     echo "Training completed successfully!"
+    echo "Model saved to: ${output_dir}"
 else
     echo "Training failed!"
     exit 1

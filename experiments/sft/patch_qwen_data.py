@@ -11,14 +11,14 @@ import sys
 from datetime import datetime
 
 def get_project_root():
-    """Get the project root directory (07_MindCube_new level)"""
-    # Script is at: 07_MindCube_new/experiments/sft/patch_qwen_data.py
+    """Get the project root directory (MindCube level)"""
+    # Script is at: MindCube/experiments/sft/patch_qwen_data.py
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.abspath(os.path.join(script_dir, '..', '..'))
     return project_root
 
 PROJECT_ROOT = get_project_root()
-QWEN_INIT_FILE = os.path.join(PROJECT_ROOT, "Qwen2.5-VL/qwen-vl-finetune/qwenvl/data/__init__.py")
+QWEN_INIT_FILE = os.path.join(PROJECT_ROOT, "Qwen2.5-VL-MindCube/qwen-vl-finetune/qwenvl/data/__init__.py")
 BACKUP_FILE = os.path.join(PROJECT_ROOT, "experiments/sft/qwen_data_init_backup.py")
 
 # MindCube data configurations - following the same naming pattern as original Qwen datasets

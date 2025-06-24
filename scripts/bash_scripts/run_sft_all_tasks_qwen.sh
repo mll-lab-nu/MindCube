@@ -85,18 +85,21 @@ run_task_training() {
     echo "⏰ Start time: ${start_time}"
     echo ""
     
-    # Change to SFT directory
-    cd "${SFT_DIR}" || {
-        echo "❌ Error: Cannot change to SFT directory: ${SFT_DIR}"
+    # Stay in project root directory (following new convention)
+    cd "${PROJECT_ROOT}" || {
+        echo "❌ Error: Cannot change to project root directory: ${PROJECT_ROOT}"
         return 1
     }
     
+    # Use full path for config file to work from project root
+    local full_config_path="${SFT_DIR}/${config_file}"
+    
     # Run training and capture both stdout and stderr
-    echo "🔧 Executing: ${TRAINING_SCRIPT} ${config_file}"
+    echo "🔧 Executing: ${TRAINING_SCRIPT} ${full_config_path}"
     echo "📊 This will block until training completes..."
     
     # Start the training process and get its PID
-    "${TRAINING_SCRIPT}" "${config_file}" > "${log_file}" 2>&1 &
+    "${TRAINING_SCRIPT}" "${full_config_path}" > "${log_file}" 2>&1 &
     local train_pid=$!
     echo ${train_pid} > "${pid_file}"
     
@@ -211,7 +214,7 @@ done
 echo ""
 echo "📈 To check training results:"
 echo "  # Check checkpoints:"
-echo "  ls -la ${PROJECT_ROOT}/checkpoints/sft/"
+echo "  ls -la ${PROJECT_ROOT}/experiments/sft/results/"
 echo ""
 echo "  # Check specific task log:"
 echo "  tail -f ${LOG_DIR}/sft_training_<task_name>.log"

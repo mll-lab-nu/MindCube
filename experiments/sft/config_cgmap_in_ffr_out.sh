@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # ==============================================================================
-# Cognitive Reasoning Task Configuration
-# Configuration for cognitive reasoning fine-tuning task
+# Cognitive Map Input + Free-Form Reasoning Output Task Configuration
+# Configuration for cognitive map input with free-form reasoning output fine-tuning
 # ==============================================================================
 
 # Task-specific configuration
-TASK_NAME="cog_reasoning"
-DATASET_NAME="cog_reasoning"
+TASK_NAME="cgmap_in_ffr_out"
+DATASET_NAME="cgmap_in_ffr_out"
 
 # Model configuration
 MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
@@ -32,7 +32,8 @@ echo "Task configuration loaded: ${TASK_NAME}"
 # ==============================================================================
 # Task Description:
 # ==============================================================================
-# Cognitive Reasoning task focuses on developing structured reasoning
-# capabilities for visual understanding. This is a legacy task configuration
-# that may be replaced by more specific cognitive mapping tasks.
+# Cognitive Map Input + Free-Form Reasoning Output combines structured cognitive
+# map inputs with flexible reasoning output generation. This task trains models
+# to process structured cognitive representations and generate natural language
+# reasoning responses.
 # ============================================================================== 

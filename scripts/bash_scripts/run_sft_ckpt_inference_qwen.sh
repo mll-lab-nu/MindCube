@@ -1,23 +1,76 @@
 #!/bin/bash
 
 # Script to run inference for all SFT checkpoints on all tasks
-# Simple GPU usage: round-robin assignment with max 12 concurrent tasks
+# Dynamically detects available GPUs and manages task queues
+# Each GPU runs maximum N tasks concurrently using round robin algorithm
 # Author: MindCube Team
-# Usage: bash scripts/bash_scripts/run_sft_all_tasks_qwen_revise.sh
+# Usage: bash scripts/bash_scripts/run_sft_ckpt_inference_qwen.sh [--max-tasks-per-gpu N]
 
-echo "🚀 Starting SFT checkpoint inference for all tasks (Revised Version)..."
+# Function to show usage
+show_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --max-tasks-per-gpu N    Maximum number of tasks per GPU (default: 1)"
+    echo "  --help, -h               Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                            # Use default (1 task per GPU)"
+    echo "  $0 --max-tasks-per-gpu 2      # Allow 2 tasks per GPU"
+    echo "  $0 --max-tasks-per-gpu 3      # Allow 3 tasks per GPU"
+    echo ""
+    echo "Note: This script processes all checkpoints for each task."
+}
+
+# Parse command line arguments
+MAX_TASKS_PER_GPU=1  # Default value for better memory management
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --max-tasks-per-gpu)
+            MAX_TASKS_PER_GPU="$2"
+            if ! [[ "$MAX_TASKS_PER_GPU" =~ ^[1-9][0-9]*$ ]]; then
+                echo "❌ Error: --max-tasks-per-gpu must be a positive integer"
+                exit 1
+            fi
+            shift 2
+            ;;
+        --help|-h)
+            show_usage
+            exit 0
+            ;;
+        *)
+            echo "❌ Error: Unknown option $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+echo "🚀 Starting SFT checkpoint inference for all tasks (Enhanced Version)..."
 echo "📅 Start time: $(date)"
 
 # Configuration
 MODEL_TYPE="qwen2.5vl"
 INPUT_DIR="./data/prompts/general"
-OUTPUT_DIR="./data/results/vision_only"
-LOG_DIR="./logs/vision_only_inference"
-CHECKPOINT_BASE_DIR="./checkpoints/vision_only"
-MAX_CONCURRENT_TASKS=12  # 12 concurrent tasks (3 per GPU average)
+OUTPUT_DIR="./data/results/sft"
+LOG_DIR="./logs/sft_inference"
+CHECKPOINT_BASE_DIR="./checkpoints/sft"
+MONITOR_INTERVAL=30  # seconds between status checks
 
-# Global job counter for accurate GPU assignment
-GLOBAL_JOB_COUNTER=0
+# Detect available GPUs
+echo "🔍 Detecting available GPUs..."
+if command -v nvidia-smi &> /dev/null; then
+    GPU_COUNT=$(nvidia-smi --list-gpus | wc -l)
+    if [ ${GPU_COUNT} -eq 0 ]; then
+        echo "❌ No NVIDIA GPUs detected!"
+        exit 1
+    fi
+else
+    echo "⚠️  nvidia-smi not found, defaulting to 1 GPU"
+    GPU_COUNT=1
+fi
+
+echo "🎮 Detected ${GPU_COUNT} GPU(s)"
 
 # All available tasks (based on checkpoint directories)
 TASKS=(
@@ -39,44 +92,87 @@ echo "📁 Log directory: ${LOG_DIR}"
 echo "📁 Checkpoint base directory: ${CHECKPOINT_BASE_DIR}"
 echo "🎯 Model type: ${MODEL_TYPE}"
 echo "📋 Tasks to process: ${#TASKS[@]} tasks"
-echo "🔧 Max concurrent tasks: ${MAX_CONCURRENT_TASKS}"
+echo "⚙️  Max tasks per GPU: ${MAX_TASKS_PER_GPU}"
+echo "💾 Max concurrent tasks: $((GPU_COUNT * MAX_TASKS_PER_GPU))"
 
-# Display task list
-for task in "${TASKS[@]}"; do
-    echo "  - ${task}"
+# Initialize GPU task counters
+declare -A gpu_task_count
+for ((i=0; i<GPU_COUNT; i++)); do
+    gpu_task_count[$i]=0
 done
 
+# Task queue management
+declare -a job_queue=()
+declare -a running_jobs=()
+declare -A job_gpu_mapping
+declare -A job_pids
+
+# Build job queue (all task-checkpoint combinations)
+echo ""
+echo "🔍 Discovering checkpoints and building job queue..."
+total_jobs=0
+
+for task in "${TASKS[@]}"; do
+    echo "📋 Processing task: ${task}"
+    
+    # Get all checkpoints for this task
+    task_checkpoint_dir="${CHECKPOINT_BASE_DIR}/${task}"
+    if [ ! -d "${task_checkpoint_dir}" ]; then
+        echo "⚠️  Warning: No checkpoint directory found for task ${task}"
+        continue
+    fi
+    
+    # Find and sort checkpoints
+    checkpoints=($(find "${task_checkpoint_dir}" -name "checkpoint-*" -type d | sort -t'-' -k2 -n))
+    
+    if [ ${#checkpoints[@]} -eq 0 ]; then
+        echo "⚠️  Warning: No checkpoints found for task ${task}"
+        continue
+    fi
+    
+    echo "📁 Found ${#checkpoints[@]} checkpoints for task ${task}"
+    
+    for checkpoint_path in "${checkpoints[@]}"; do
+        checkpoint_id=$(basename "${checkpoint_path}" | sed 's/checkpoint-//')
+        job_id="${task}_checkpoint-${checkpoint_id}"
+        job_queue+=("${job_id}:${task}:${checkpoint_path}:${checkpoint_id}")
+        ((total_jobs++))
+    done
+done
+
+echo "✅ Job queue built: ${total_jobs} total jobs"
 echo ""
 
-# Function to get running inference jobs count
-get_running_jobs() {
-    ps aux | grep "scripts/run_inference.py" | grep -v grep | wc -l
-}
-
-# Function to wait for available slot
-wait_for_available_slot() {
-    while [ $(get_running_jobs) -ge ${MAX_CONCURRENT_TASKS} ]; do
-        echo "⏳ Maximum concurrent tasks (${MAX_CONCURRENT_TASKS}) reached. Waiting for available slot..."
-        sleep 30
+# Function to get next available GPU using round robin
+get_next_gpu() {
+    local min_tasks=999
+    local selected_gpu=-1
+    
+    # Find GPU with minimum running tasks
+    for ((i=0; i<GPU_COUNT; i++)); do
+        if [ ${gpu_task_count[$i]} -lt ${MAX_TASKS_PER_GPU} ]; then
+            if [ ${gpu_task_count[$i]} -lt ${min_tasks} ]; then
+                min_tasks=${gpu_task_count[$i]}
+                selected_gpu=$i
+            fi
+        fi
     done
-}
-
-# Function to get GPU assignment using global counter (more reliable)
-get_gpu_assignment() {
-    local gpu_id=$((GLOBAL_JOB_COUNTER % 4))  # Use global counter instead of ps
-    echo ${gpu_id}  # Don't increment here - increment only after successful launch
+    
+    echo "${selected_gpu}"
 }
 
 # Function to run inference for a single checkpoint
 run_checkpoint_inference() {
-    local task_name=$1
-    local checkpoint_path=$2
-    local checkpoint_id=$3
-    local gpu_id=$4
+    local job_id=$1
+    local task_name=$2
+    local checkpoint_path=$3
+    local checkpoint_id=$4
+    local gpu_id=$5
     
     local input_file="${INPUT_DIR}/MindCube_tinybench_${task_name}.jsonl"
     local output_subdir="${OUTPUT_DIR}/${task_name}"
     local log_file="${LOG_DIR}/inference_${task_name}_checkpoint-${checkpoint_id}_gpu${gpu_id}.log"
+    local pid_file="${LOG_DIR}/pid_${task_name}_checkpoint-${checkpoint_id}_gpu${gpu_id}.txt"
     
     # Create task-specific output directory
     mkdir -p "${output_subdir}"
@@ -86,7 +182,6 @@ run_checkpoint_inference() {
     echo "📋 [GPU ${gpu_id}] Checkpoint: ${checkpoint_path}"
     echo "📤 [GPU ${gpu_id}] Output directory: ${output_subdir}"
     echo "📋 [GPU ${gpu_id}] Log file: ${log_file}"
-    echo "🎯 [GPU ${gpu_id}] Job counter: $((GLOBAL_JOB_COUNTER + 1))"
     
     # Check if input file exists
     if [ ! -f "${input_file}" ]; then
@@ -101,7 +196,6 @@ run_checkpoint_inference() {
     fi
     
     # Run inference with nohup in background
-    # The output file will be auto-generated as: MindCube_tinybench_{task_name}_checkpoint-{checkpoint_id}_responses.jsonl
     nohup env CUDA_VISIBLE_DEVICES=${gpu_id} python scripts/run_inference.py \
         --model-type "${MODEL_TYPE}" \
         --model-path "${checkpoint_path}" \
@@ -110,118 +204,132 @@ run_checkpoint_inference() {
         > "${log_file}" 2>&1 &
     
     local pid=$!
-    echo "✅ [GPU ${gpu_id}] Task ${task_name}_checkpoint-${checkpoint_id} started with PID: ${pid}"
+    echo "✅ [GPU ${gpu_id}] Job ${job_id} started with PID: ${pid}"
     
-    # Save PID for monitoring
-    echo "${pid}" > "${LOG_DIR}/pid_${task_name}_checkpoint-${checkpoint_id}_gpu${gpu_id}.txt"
-    
-    # Increment counter only after successful launch
-    ((GLOBAL_JOB_COUNTER++))
+    # Save PID and update tracking
+    echo "${pid}" > "${pid_file}"
+    job_pids["${job_id}"]=${pid}
+    job_gpu_mapping["${job_id}"]=${gpu_id}
+    running_jobs+=("${job_id}")
+    ((gpu_task_count[${gpu_id}]++))
     
     return 0
 }
 
-# Function to discover and sort checkpoints for a task
-get_task_checkpoints() {
-    local task_name=$1
-    local task_checkpoint_dir="${CHECKPOINT_BASE_DIR}/${task_name}"
+# Function to check task completion and cleanup
+check_and_cleanup_completed_jobs() {
+    local updated_running_jobs=()
     
-    if [ ! -d "${task_checkpoint_dir}" ]; then
-        echo "[]"
-        return
-    fi
+    for job_id in "${running_jobs[@]}"; do
+        local pid=${job_pids["${job_id}"]}
+        local gpu_id=${job_gpu_mapping["${job_id}"]}
+        
+        # Extract task info for PID file cleanup
+        IFS=':' read -r task_part task_name checkpoint_path checkpoint_id <<< "${job_id}:dummy:dummy:dummy"
+        local pid_file="${LOG_DIR}/pid_${task_name}_checkpoint-${checkpoint_id}_gpu${gpu_id}.txt"
+        
+        # Check if process is still running
+        if ! kill -0 ${pid} 2>/dev/null; then
+            echo "✅ [GPU ${gpu_id}] Job ${job_id} completed (PID: ${pid})"
+            
+            # Cleanup PID file
+            if [ -f "${pid_file}" ]; then
+                rm "${pid_file}"
+                echo "🗑️  [GPU ${gpu_id}] Cleaned up PID file: ${pid_file}"
+            fi
+            
+            # Update counters
+            ((gpu_task_count[${gpu_id}]--))
+            unset job_pids["${job_id}"]
+            unset job_gpu_mapping["${job_id}"]
+        else
+            # Job still running, keep it in the list
+            updated_running_jobs+=("${job_id}")
+        fi
+    done
     
-    # Find all checkpoint directories and sort them numerically
-    find "${task_checkpoint_dir}" -name "checkpoint-*" -type d | \
-        sort -t'-' -k2 -n | \
-        tr '\n' ' '
+    running_jobs=("${updated_running_jobs[@]}")
 }
 
-# Main processing loop
-echo "🎬 Starting checkpoint inference for all tasks..."
-echo ""
-
-total_jobs=0
-successful_jobs=0
-failed_jobs=0
-
-for task in "${TASKS[@]}"; do
-    echo "📋 Processing task: ${task}"
-    
-    # Get all checkpoints for this task
-    checkpoints_str=$(get_task_checkpoints "${task}")
-    read -a checkpoints <<< "${checkpoints_str}"
-    
-    if [ ${#checkpoints[@]} -eq 0 ]; then
-        echo "⚠️  Warning: No checkpoints found for task ${task}"
-        continue
-    fi
-    
-    echo "📁 Found ${#checkpoints[@]} checkpoints for task ${task}:"
-    for ckpt in "${checkpoints[@]}"; do
-        echo "  - $(basename ${ckpt})"
-    done
-    
-    # Process each checkpoint
-    for checkpoint_path in "${checkpoints[@]}"; do
-        checkpoint_id=$(basename "${checkpoint_path}" | sed 's/checkpoint-//')
-        
-        # Wait for available slot
-        wait_for_available_slot
-        
-        # Get GPU assignment using reliable counter
-        gpu_id=$(get_gpu_assignment)
-        
-        # Run inference for this checkpoint
-        if run_checkpoint_inference "${task}" "${checkpoint_path}" "${checkpoint_id}" "${gpu_id}"; then
-            ((successful_jobs++))
-        else
-            ((failed_jobs++))
-        fi
-        
-        ((total_jobs++))
-        
-        # Small delay between job starts to avoid resource conflicts
-        sleep 3
-    done
-    
-    echo "✅ All checkpoints for task ${task} have been queued"
+# Function to display current status
+show_status() {
     echo ""
+    echo "📊 Current Status:"
+    echo "  - Total jobs: ${total_jobs}"
+    echo "  - Jobs in queue: ${#job_queue[@]}"
+    echo "  - Jobs running: ${#running_jobs[@]}"
+    echo "  - Jobs completed: $((${total_jobs} - ${#job_queue[@]} - ${#running_jobs[@]}))"
+    
+    echo "  - GPU utilization:"
+    for ((i=0; i<GPU_COUNT; i++)); do
+        echo "    GPU ${i}: ${gpu_task_count[$i]}/${MAX_TASKS_PER_GPU} tasks"
+    done
+    
+    echo "  - Progress by task:"
+    for task in "${TASKS[@]}"; do
+        local completed=$(ls "${OUTPUT_DIR}/${task}"/*_responses.jsonl 2>/dev/null | wc -l)
+        local total_checkpoints=$(find "${CHECKPOINT_BASE_DIR}/${task}" -name "checkpoint-*" -type d 2>/dev/null | wc -l)
+        if [ ${total_checkpoints} -gt 0 ]; then
+            echo "    ${task}: ${completed}/${total_checkpoints} checkpoints completed"
+        fi
+    done
+    echo ""
+}
+
+# Main execution loop
+echo "🎬 Starting intelligent checkpoint inference execution..."
+
+while [ ${#job_queue[@]} -gt 0 ] || [ ${#running_jobs[@]} -gt 0 ]; do
+    # Check and cleanup completed jobs
+    check_and_cleanup_completed_jobs
+    
+    # Try to start new jobs from queue
+    updated_queue=()
+    for job_spec in "${job_queue[@]}"; do
+        IFS=':' read -r job_id task_name checkpoint_path checkpoint_id <<< "${job_spec}"
+        gpu_id=$(get_next_gpu)
+        
+        if [ "${gpu_id}" -ge 0 ] 2>/dev/null; then
+            # Found available GPU, start the job
+            run_checkpoint_inference "${job_id}" "${task_name}" "${checkpoint_path}" "${checkpoint_id}" "${gpu_id}"
+            sleep 2  # Small delay to avoid resource conflicts
+        else
+            # No available GPU, keep job in queue
+            updated_queue+=("${job_spec}")
+        fi
+    done
+    job_queue=("${updated_queue[@]}")
+    
+    # Show current status
+    show_status
+    
+    # Wait before next check if there are still jobs running or in queue
+    if [ ${#running_jobs[@]} -gt 0 ] || [ ${#job_queue[@]} -gt 0 ]; then
+        echo "⏳ Waiting ${MONITOR_INTERVAL}s before next status check..."
+        sleep ${MONITOR_INTERVAL}
+    fi
 done
 
 echo ""
-echo "🎯 All checkpoint inference jobs have been launched!"
-echo "📊 Summary:"
-echo "  - Total jobs launched: ${total_jobs}"
-echo "  - Successful launches: ${successful_jobs}"
-echo "  - Failed launches: ${failed_jobs}"
-echo "  - Max concurrent tasks: ${MAX_CONCURRENT_TASKS}"
+echo "🎉 All SFT checkpoint inference jobs completed successfully!"
+echo "📊 Final Summary:"
+echo "  - Total jobs completed: ${total_jobs}"
+echo "  - GPUs used: ${GPU_COUNT}"
+echo "  - Max tasks per GPU: ${MAX_TASKS_PER_GPU}"
+echo "  - Model: ${MODEL_TYPE}"
 echo "  - Tasks processed: ${#TASKS[@]}"
 echo "  - Input directory: ${INPUT_DIR}"
 echo "  - Output directory: ${OUTPUT_DIR}"
 echo "  - Log directory: ${LOG_DIR}"
 
 echo ""
-echo "📋 To monitor progress:"
+echo "📋 Monitoring commands for future reference:"
 echo "  # Check running processes:"
 echo "  ps aux | grep run_inference.py"
-echo ""
-echo "  # Check total running jobs:"
-echo "  ps aux | grep run_inference.py | grep -v grep | wc -l"
-echo ""
-echo "  # Check GPU distribution:"
-echo "  for gpu in 0 1 2 3; do"
-echo "    echo \"GPU \$gpu: \$(ps aux | grep run_inference.py | grep CUDA_VISIBLE_DEVICES=\$gpu | grep -v grep | wc -l) tasks\""
-echo "  done"
 echo ""
 echo "  # Check logs for specific task and checkpoint:"
 echo "  tail -f ${LOG_DIR}/inference_<task_name>_checkpoint-<checkpoint_id>_gpu<gpu_id>.log"
 echo ""
-echo "  # Example: Check raw_qa checkpoint-5 log:"
-echo "  tail -f ${LOG_DIR}/inference_raw_qa_checkpoint-5_gpu*.log"
-
-echo ""
-echo "📈 To check completion status:"
 echo "  # Count completed results by task:"
 echo "  for task in ${TASKS[@]}; do"
 echo "    echo \"Task \$task: \$(ls ${OUTPUT_DIR}/\$task/*_responses.jsonl 2>/dev/null | wc -l) completed\""
@@ -231,60 +339,6 @@ echo "  # List all completed output files:"
 echo "  find ${OUTPUT_DIR} -name '*_responses.jsonl' | sort"
 
 echo ""
-echo "🔍 To check specific task results:"
-echo "  ls -la ${OUTPUT_DIR}/<task_name>/"
-echo ""
-echo "  # Example for raw_qa:"
-echo "  ls -la ${OUTPUT_DIR}/raw_qa/"
-
-echo ""
 echo "⏰ Script started at: $(date)"
-echo "🔄 All jobs are now running in background with nohup..."
-echo "✅ Script execution completed. Check logs for progress updates."
-
-# Create a monitoring script
-cat > "${LOG_DIR}/monitor_progress.sh" << 'EOF'
-#!/bin/bash
-echo "📊 SFT Checkpoint Inference Progress Monitor"
-echo "⏰ $(date)"
-echo ""
-
-echo "🔄 Currently running jobs:"
-running_jobs=$(ps aux | grep "scripts/run_inference.py" | grep -v grep | wc -l)
-echo "  Active inference processes: ${running_jobs}/12"
-
-echo ""
-echo "🎮 GPU Distribution:"
-for gpu in 0 1 2 3; do
-    gpu_jobs=$(ps aux | grep "scripts/run_inference.py" | grep "CUDA_VISIBLE_DEVICES=${gpu}" | grep -v grep | wc -l)
-    echo "  GPU ${gpu}: ${gpu_jobs} tasks"
-done
-
-if [ ${running_jobs} -gt 0 ]; then
-    echo ""
-    echo "📋 Running processes:"
-    ps aux | grep "scripts/run_inference.py" | grep -v grep | awk '{print "  PID: " $2 ", GPU: " $12 ", Started: " $9}'
-fi
-
-echo ""
-echo "📈 Completion status by task:"
-for task in raw_qa aug_cgmap_out plain_cgmap_out ff_rsn; do
-    completed=$(ls ./data/results/sft/${task}/*_responses.jsonl 2>/dev/null | wc -l)
-    total_checkpoints=$(find ./checkpoints/sft/${task} -name "checkpoint-*" -type d 2>/dev/null | wc -l)
-    echo "  ${task}: ${completed}/${total_checkpoints} checkpoints completed"
-done
-
-echo ""
-echo "📁 Recent output files (last 10):"
-find ./data/results/sft -name '*_responses.jsonl' -exec ls -lt {} + | head -10
-
-echo ""
-echo "💾 Disk usage:"
-echo "  SFT results: $(du -sh ./data/results/sft 2>/dev/null | cut -f1)"
-echo "  Log files: $(du -sh ./logs/sft_inference 2>/dev/null | cut -f1)"
-
-EOF
-
-chmod +x "${LOG_DIR}/monitor_progress.sh"
-echo "📊 Created progress monitor script: ${LOG_DIR}/monitor_progress.sh"
-echo "   Run: bash ${LOG_DIR}/monitor_progress.sh" 
+echo "⏰ Script completed at: $(date)"
+echo "✅ All jobs finished and PID files cleaned up automatically.z
