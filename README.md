@@ -208,7 +208,7 @@ This section guides you through supervised fine-tuning (SFT) to adapt pre-traine
 
 ### (Optional) Step 0: Environment Setup
 
-If you plan to process video data or need multimedia support, install ffmpeg:
+Install ffmpeg if you have not installed it yet:
 
 ```bash
 conda install -c conda-forge ffmpeg -y # skip this if you already installed ffmpeg in your device
