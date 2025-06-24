@@ -1,4 +1,8 @@
-<h1 align="center">MindCube: Spatial Mental Modeling from Limited Views</h1>
+<h1 align="center">
+  <img src="assets/icon.png" alt="MindCube Icon" width="28" height="28" style="vertical-align: middle; margin-right: 0px;">
+  MindCube: Spatial Mental Modeling from Limited Views
+</h1>
+
 <!-- Badges -->
 <div align="center">
 
