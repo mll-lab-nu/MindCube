@@ -34,6 +34,7 @@
 
 ## 📢 Updates
 
+- **[2025-06-24]** Our website is online, check it out [here](https://mind-cube.github.io/).
 - **[2025-06-23]** We open-source the MindCube framework and dataset.
 
 ## 🌟 Overview
