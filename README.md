@@ -8,8 +8,8 @@
 
 <!-- [![arXiv](https://img.shields.io/badge/arXiv-2412.XXXXX-b31b1b.svg)](https://arxiv.org/abs/2412.XXXXX) -->
 [![Homepage](https://img.shields.io/badge/🏠-Homepage-blue.svg)](https://mind-cube.github.io/)
-[![Dataset](https://img.shields.io/badge/🤗-Dataset-yellow.svg)](https://huggingface.co/datasets/Inevitablevalor/MindCube)
-[![Checkpoints](https://img.shields.io/badge/🤗-Checkpoints-green.svg)](https://huggingface.co/Inevitablevalor/models)
+[![Dataset](https://img.shields.io/badge/🤗-Dataset-yellow.svg)](https://huggingface.co/datasets/MLL-Lab/MindCube)
+[![Checkpoints](https://img.shields.io/badge/🤗-Checkpoints-green.svg)](https://huggingface.co/MLL-Lab/models)
 
 </div>
 <p align="center">
