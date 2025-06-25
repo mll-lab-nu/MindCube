@@ -46,7 +46,7 @@ MindCube is a modular framework for generating and evaluating spatial reasoning 
 Follow these steps to set up your development environment. This process will create an isolated Python environment with all necessary dependencies for running MindCube.
 
 ```bash
-git clone git@github.com:QinengWang-Aiden/MindCube.git
+git clone git@github.com:mll-lab-nu/MindCube.git
 cd MindCube
 ```
 
