@@ -14,7 +14,7 @@
 </div>
 <p align="center">
     <a href="https://openreview.net/profile?id=~Baiqiao_Yin2">Baiqiao Yin<sup>1, 3*</sup></a>, 
-    <a href="https://qinengwang-aiden.github.io/">Qineng Wang<sup>1*</sup></a>, 
+    <a href="https://qinengwang-aiden.github.io/">Qineng Wang<sup>1*‡</sup></a>, 
     <a href="https://williamzhangsjtu.github.io/">Pingyue Zhang<sup>1</sup></a>, 
     <a href="https://sterzhang.github.io/">Jianshu Zhang<sup>1</sup></a>, 
     <a href="https://jameskrw.github.io/">Kangrui Wang<sup>1</sup></a>, 
@@ -28,7 +28,7 @@
     <a href="https://jiajunwu.com/">Jiajun Wu<sup>2†</sup></a>, 
     <a href="https://profiles.stanford.edu/fei-fei-li">Li Fei-Fei<sup>2†</sup></a>
 </p>
-<p align="center">*Equal contribution, †Equal advising</p>
+<p align="center">*Equal contribution, ‡Project Lead, †Equal advising</p>
 <p align="center"><sup>1</sup>Northwestern University, <sup>2</sup>Stanford University, <sup>3</sup>New York University, <sup>4</sup>University of Washington</p>
 
 
