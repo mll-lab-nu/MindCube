@@ -6,7 +6,7 @@
 <!-- Badges -->
 <div align="center">
 
-<!-- [![arXiv](https://img.shields.io/badge/arXiv-2412.XXXXX-b31b1b.svg)](https://arxiv.org/abs/2412.XXXXX) -->
+[![arXiv](https://img.shields.io/badge/arXiv-2506.21458-b31b1b.svg)](https://arxiv.org/abs/2506.21458)
 [![Homepage](https://img.shields.io/badge/🏠-Homepage-blue.svg)](https://mind-cube.github.io/)
 [![Dataset](https://img.shields.io/badge/🤗-Dataset-yellow.svg)](https://huggingface.co/datasets/MLL-Lab/MindCube)
 [![Checkpoints](https://img.shields.io/badge/🤗-Checkpoints-green.svg)](https://huggingface.co/MLL-Lab/models)
@@ -34,6 +34,7 @@
 
 ## 📢 Updates
 
+- **[2025-06-26]** Our paper is available on arXiv, check it out [here](https://arxiv.org/abs/2506.21458).
 - **[2025-06-24]** Our website is online, check it out [here](https://mind-cube.github.io/).
 - **[2025-06-23]** We open-source the MindCube framework and dataset.
 
