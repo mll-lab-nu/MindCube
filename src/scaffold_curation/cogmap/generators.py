@@ -88,6 +88,22 @@ Your task is to analyze the spatial arrangement of objects in the scene by exami
 3. Carefully integrate information from all views to create a single coherent spatial representation.
 <orientation_info>'''
 
+# =====[06-27-2025 Patch] ======================================================
+# Due to two around image groups do not comply with the rules, we need to add a special case for them.
+# Will remove this patch after the dataset is fixed.
+def special_around_id_list_062725() -> List[str]:
+    return [
+        "d254259ad5be1ec58a5591aa18011ee766c05bf76fd1ea4cd17fe994e6e7707c",
+        "e3f7e530666356f04f6ea50d7eb3173c130d7d5b0da8bcb332de4cf20961c60c"
+    ]
+    
+def id_is_in_special_around_id_list_062725(id: str) -> bool:
+    for sid in special_around_id_list_062725():
+        if sid in id:
+            return True
+    return False
+# ==============================================================================
+
 
 def format_cogmap_json(cogmap):
     """
@@ -213,7 +229,9 @@ def generate_around_cogmap(item) -> Tuple[str, list, list]:
     assert question_images_len <= image_group_num, f"Question images length {question_images_len} is greater than image group number {image_group_num}, id: {id}"
     assert 3 <= image_group_num <= 6, f"Image group number {image_group_num} is not between 3 and 6"
 
-    if image_group_num == 3 and datasource == "self":
+    if id_is_in_special_around_id_list_062725(id): # [patch 06-27-2025], should be removed after the dataset is fixed.
+        global_views = {1: "front", 2: "left", 3: "right", 4: "front", 5: "left", 6: "right"}
+    elif image_group_num == 3 and datasource == "self":
         global_views = {1: "front", 2: "left", 3: "right"}
     elif image_group_num == 3 and datasource == "dl3dv10k":
         global_views = {1: "front", 2: "left", 3: "right", 4: "back"}
