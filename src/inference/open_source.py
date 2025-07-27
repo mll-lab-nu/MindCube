@@ -5,6 +5,7 @@ Open Source Model Inference Engine.
 from typing import List, Dict, Any, Optional
 from .base import BaseInferenceEngine
 from .engines.qwen_engine import QwenInferenceEngine
+from .engines.internvl_engine import InternVLInferenceEngine
 
 
 class OpenSourceInferenceEngine:
@@ -25,13 +26,15 @@ class OpenSourceInferenceEngine:
         """
         if model_type.lower() in ['qwen2.5vl', 'qwen', 'qwen2.5-vl']:
             return QwenInferenceEngine(model_path, **kwargs)
+        elif model_type.lower() in ['internvl']:
+            return InternVLInferenceEngine(model_path, **kwargs)
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
     
     @staticmethod
     def list_supported_models() -> List[str]:
         """List supported model types."""
-        return ['qwen2.5vl', 'qwen', 'qwen2.5-vl']
+        return ['qwen2.5vl', 'qwen', 'qwen2.5-vl', 'internvl']
     
     @staticmethod
     def get_model_info(model_type: str) -> Dict[str, Any]:
@@ -43,6 +46,13 @@ class OpenSourceInferenceEngine:
                 'supported_backends': ['transformers', 'vllm'],
                 'recommended_backend': 'transformers',
                 'base_model': 'Qwen/Qwen2.5-VL-3B-Instruct'
+            },
+            'internvl': {
+                'name': 'InternVL3-2B',
+                'description': 'Vision-Language model by OpenGVLab',
+                'supported_backends': ['transformers'],
+                'recommended_backend': 'transformers',
+                'base_model': 'OpenGVLab/InternVL3-2B'
             }
         }
         

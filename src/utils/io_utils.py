@@ -56,7 +56,7 @@ def load_json(file_path: str) -> Dict[str, Any]:
         return json.load(f)
 
 
-def save_json(data: Dict[str, Any], file_path: str, indent: int = 2) -> None:
+def save_json(data: Any, file_path: str, indent: int = 2) -> None:
     """
     Save data to a JSON file.
     

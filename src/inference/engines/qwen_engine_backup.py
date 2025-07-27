@@ -200,13 +200,12 @@ class QwenInferenceEngine(BaseInferenceEngine):
     
     def _generate_transformers(self, processed_input: Dict, **kwargs) -> str:
         """Generate response using transformers backend."""
-        import torch  # Import torch at function start to avoid scoping issues
         inputs = processed_input['inputs']
         
         # Generation parameters - filter out non-generation parameters
         generation_config = self.config.get('generation_config', {}).copy()
         
-        # Only include valid generation parameters (seed is handled separately)
+        # Only include valid generation parameters
         valid_gen_params = {
             'max_new_tokens', 'temperature', 'top_p', 'top_k', 'do_sample',
             'num_beams', 'repetition_penalty', 'length_penalty', 'early_stopping',
@@ -218,25 +217,9 @@ class QwenInferenceEngine(BaseInferenceEngine):
         generation_config.update(filtered_kwargs)
         generation_config.setdefault('max_new_tokens', self.config.get('max_new_tokens', 4096))
         
-        # Check if seed is provided to enable sampling for multi-seed experiments
-        seed = kwargs.get('seed') or generation_config.get('seed')
-        if seed is not None:
-            # Enable sampling when seed is provided for multi-seed experiments
-            generation_config['do_sample'] = True
-            generation_config['temperature'] = max(generation_config.get('temperature', 0.7), 0.1)  # Ensure minimum temperature for sampling
-            # Remove seed from generation_config as transformers doesn't accept it
-            generation_config.pop('seed', None)
-            # Set torch seed for reproducibility
-            torch.manual_seed(seed)
-            if torch.cuda.is_available():
-                torch.cuda.manual_seed(seed)
-                torch.cuda.manual_seed_all(seed)
-        else:
-            # FORCE deterministic inference using greedy decoding for deterministic results
-            generation_config['do_sample'] = False  # Forces greedy decoding (ignores all sampling params)
-            generation_config['temperature'] = 0.0  # Backup for safety (ignored when do_sample=False)
-            # Remove seed from generation_config if present
-            generation_config.pop('seed', None)
+        # FORCE deterministic inference using greedy decoding
+        generation_config['do_sample'] = False  # Forces greedy decoding (ignores all sampling params)
+        generation_config['temperature'] = 0.0  # Backup for safety (ignored when do_sample=False)
         
         # Generate response
         generated_ids = self.model.generate(**inputs, **generation_config)
@@ -263,24 +246,13 @@ class QwenInferenceEngine(BaseInferenceEngine):
         try:
             from vllm import SamplingParams
             
-            # Check if seed is provided for multi-seed experiments
-            seed = kwargs.get('seed') or self.config.get('generation_config', {}).get('seed')
-            if seed is not None:
-                # Enable sampling when seed is provided for multi-seed experiments
-                sampling_params = SamplingParams(
-                    temperature=max(kwargs.get('temperature', 0.7), 0.1),  # Ensure minimum temperature for sampling
-                    max_tokens=min(kwargs.get('max_new_tokens', 1536), 1536),
-                    min_tokens=1,
-                    seed=seed  # Use provided seed for reproducibility
-                )
-            else:
-                # FORCE deterministic inference - temperature=0.0 enables greedy sampling in vLLM
-                sampling_params = SamplingParams(
-                    temperature=0.0,  # vLLM automatically enables greedy sampling and ignores other params
-                    max_tokens=min(kwargs.get('max_new_tokens', 1536), 1536),
-                    min_tokens=1,
-                    seed=42          # Fixed seed for additional reproducibility
-                )
+            # FORCE deterministic inference - temperature=0.0 enables greedy sampling in vLLM
+            sampling_params = SamplingParams(
+                temperature=0.0,  # vLLM automatically enables greedy sampling and ignores other params
+                max_tokens=min(kwargs.get('max_new_tokens', 1536), 1536),
+                min_tokens=1,
+                seed=42          # Fixed seed for additional reproducibility
+            )
             
             # Use proper vLLM multimodal interface
             prompt = processed_input['prompt']
@@ -441,7 +413,6 @@ class QwenInferenceEngine(BaseInferenceEngine):
         """
         Generate responses for a batch using transformers.
         """
-        import torch  # Import torch at function start to avoid scoping issues
         # Prepare batch inputs
         batch_texts = []
         all_images = []
@@ -482,7 +453,7 @@ class QwenInferenceEngine(BaseInferenceEngine):
         # Generation parameters - filter out non-generation parameters
         generation_config = self.config.get('generation_config', {}).copy()
         
-        # Only include valid generation parameters (seed is handled separately)
+        # Only include valid generation parameters
         valid_gen_params = {
             'max_new_tokens', 'temperature', 'top_p', 'top_k', 'do_sample',
             'num_beams', 'repetition_penalty', 'length_penalty', 'early_stopping',
@@ -494,25 +465,9 @@ class QwenInferenceEngine(BaseInferenceEngine):
         generation_config.update(filtered_kwargs)
         generation_config.setdefault('max_new_tokens', self.config.get('max_new_tokens', 4096))
         
-        # Check if seed is provided to enable sampling for multi-seed experiments
-        seed = kwargs.get('seed') or generation_config.get('seed')
-        if seed is not None:
-            # Enable sampling when seed is provided for multi-seed experiments
-            generation_config['do_sample'] = True
-            generation_config['temperature'] = max(generation_config.get('temperature', 0.7), 0.1)  # Ensure minimum temperature for sampling
-            # Remove seed from generation_config as transformers doesn't accept it
-            generation_config.pop('seed', None)
-            # Set torch seed for reproducibility
-            torch.manual_seed(seed)
-            if torch.cuda.is_available():
-                torch.cuda.manual_seed(seed)
-                torch.cuda.manual_seed_all(seed)
-        else:
-            # FORCE deterministic inference using greedy decoding for deterministic results
-            generation_config['do_sample'] = False  # Forces greedy decoding (ignores all sampling params)
-            generation_config['temperature'] = 0.0  # Backup for safety (ignored when do_sample=False)
-            # Remove seed from generation_config if present
-            generation_config.pop('seed', None)
+        # FORCE deterministic inference using greedy decoding
+        generation_config['do_sample'] = False  # Forces greedy decoding (ignores all sampling params)
+        generation_config['temperature'] = 0.0  # Backup for safety (ignored when do_sample=False)
         
         # Generate batch responses
         generated_ids = self.model.generate(**inputs, **generation_config)
@@ -629,24 +584,13 @@ class QwenInferenceEngine(BaseInferenceEngine):
         try:
             from vllm import SamplingParams
             
-            # Check if seed is provided for multi-seed experiments
-            seed = kwargs.get('seed') or self.config.get('generation_config', {}).get('seed')
-            if seed is not None:
-                # Enable sampling when seed is provided for multi-seed experiments
-                sampling_params = SamplingParams(
-                    temperature=max(kwargs.get('temperature', 0.7), 0.1),  # Ensure minimum temperature for sampling
-                    max_tokens=min(kwargs.get('max_new_tokens', 1536), 1536),  # Hard limit to 1536
-                    min_tokens=1,     # Ensure at least 1 token is generated
-                    seed=seed        # Use provided seed for reproducibility
-                )
-            else:
-                # FORCE deterministic inference - temperature=0.0 is vLLM equivalent of do_sample=False
-                sampling_params = SamplingParams(
-                    temperature=0.0,  # Forces greedy decoding (deterministic)
-                    max_tokens=min(kwargs.get('max_new_tokens', 1536), 1536),  # Hard limit to 1536
-                    min_tokens=1,     # Ensure at least 1 token is generated
-                    seed=42          # Fixed seed for reproducibility
-                )
+            # FORCE deterministic inference - temperature=0.0 is vLLM equivalent of do_sample=False
+            sampling_params = SamplingParams(
+                temperature=0.0,  # Forces greedy decoding (deterministic)
+                max_tokens=min(kwargs.get('max_new_tokens', 1536), 1536),  # Hard limit to 1536
+                min_tokens=1,     # Ensure at least 1 token is generated
+                seed=42          # Fixed seed for reproducibility
+            )
             
             # Check if we have images in any sample
             has_images = any(len(images) > 0 for images in batch_images_list)

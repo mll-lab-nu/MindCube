@@ -19,11 +19,12 @@ TRAINING_SCRIPT="${SFT_DIR}/train_qwen_sft.sh"
 # Add or remove tasks here as needed
 TASKS=(
     "raw_qa"
-    "aug_cgmap_out"
-    "plain_cgmap_out"
-    "ff_rsn"
-    "aug_cgmap_ffr_out"
-    "plain_cgmap_ffr_out"
+    # "aug_cgmap_out"
+    # "plain_cgmap_out"
+    # "ff_rsn"
+    # "aug_cgmap_ffr_out"
+    # "plain_cgmap_ffr_out"
+    # "cgmap_in_ffr_out"
 )
 
 # Optional: Add cog_reasoning if needed

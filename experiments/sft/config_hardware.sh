@@ -6,13 +6,13 @@
 # ==============================================================================
 
 # Hardware configuration
-GPU_DEVICES="0"          # Modify based on available GPUs (e.g., "0,1,2,3" for 4 GPUs)
-NUM_PROCESSES=1          # Should match number of GPUs
-BATCH_SIZE=1             # Per-device batch size (adjust based on GPU memory)
+GPU_DEVICES="0, 1, 2, 3"          # Modify based on available GPUs (e.g., "0,1,2,3" for 4 GPUs)
+NUM_PROCESSES=4          # Should match number of GPUs
+BATCH_SIZE=16             # Per-device batch size (adjust based on GPU memory)
 
 # Calculate gradient accumulation steps to maintain total batch size of 512
 # Formula: GRAD_ACCUM_STEPS = 512 / NUM_PROCESSES / BATCH_SIZE
-GRAD_ACCUM_STEPS=$((512 / NUM_PROCESSES / BATCH_SIZE))
+GRAD_ACCUM_STEPS=$((1024 / NUM_PROCESSES / BATCH_SIZE))
 
 # ==============================================================================
 # Common Hardware Configurations:

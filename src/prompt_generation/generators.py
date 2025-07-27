@@ -13,7 +13,7 @@ from .templates import get_template, list_templates
 TaskType = Literal[
     "raw_qa", "ff_rsn", 
     "aug_cgmap_in", "aug_cgmap_out", "plain_cgmap_out", 
-    "plain_cgmap_ffr_out", "aug_cgmap_ffr_out", "cgmap_in_ffr_out"
+    "plain_cgmap_ffr_out", "aug_cgmap_ffr_out", "cgmap_in_ffr_out", "cgmap_in_cgmap_out"
 ]
 
 
@@ -176,8 +176,21 @@ class AugCGMapFFROutGenerator(PromptGenerator):
     
     def get_required_fields(self) -> List[str]:
         return ["id", "question", "gt_answer", "grounded_cogmap", "reasoning_chain"]
-
-
+    
+class CGMapInCGMapOutGenerator(PromptGenerator):
+    """Generator for CGMap-In-CGMap-Out tasks."""
+    
+    def __init__(self):
+        super().__init__("cgmap_in_cgmap_out")
+    
+    def validate_item(self, item: Dict) -> bool:
+        """Validate item for CGMap-In-CGMap-Out generation."""
+        # TODO: Implement validation logic
+        return super().validate_item(item)
+    
+    def get_required_fields(self) -> List[str]:
+        return ["id", "question", "gt_answer", "grounded_cogmap", "grounded_cogmap_description"]
+        
 class CGMapInFFROutGenerator(PromptGenerator):
     """Generator for CGMap-In-FFR-Out tasks."""
     
@@ -203,6 +216,7 @@ GENERATOR_REGISTRY = {
     "plain_cgmap_ffr_out": PlainCGMapFFROutGenerator(),
     "aug_cgmap_ffr_out": AugCGMapFFROutGenerator(),
     "cgmap_in_ffr_out": CGMapInFFROutGenerator(),
+    "cgmap_in_cgmap_out": CGMapInCGMapOutGenerator(),
 }
 
 

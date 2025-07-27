@@ -94,7 +94,8 @@ Examples:
                        choices=[
                            'raw_qa', 'ff_rsn', 
                            'aug_cgmap_in', 'aug_cgmap_out', 'plain_cgmap_out',
-                           'plain_cgmap_ffr_out', 'aug_cgmap_ffr_out', 'cgmap_in_ffr_out'
+                           'plain_cgmap_ffr_out', 'aug_cgmap_ffr_out', 'cgmap_in_ffr_out', 
+                           'cgmap_in_cgmap_out'
                        ],
                        default=None,
                        help='Specific task type to generate (auto-detected if not specified)')
@@ -136,7 +137,8 @@ Examples:
             "plain_cgmap_out": "Plain cognitive map -> Direct answer", 
             "plain_cgmap_ffr_out": "Raw views + question -> Plain map + reasoning -> answer",
             "aug_cgmap_ffr_out": "Raw views + question -> Aug. map + reasoning -> answer",
-            "cgmap_in_ffr_out": "Augmented cognitive map as input -> Reasoning -> answer"
+            "cgmap_in_ffr_out": "Augmented cognitive map as input -> Reasoning -> answer",
+            "cgmap_in_cgmap_out": "Augmented cognitive map as input -> Reasoning -> answer"
         }
         
         for task_type in list_task_types():

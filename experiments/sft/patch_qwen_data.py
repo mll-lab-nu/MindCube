@@ -29,6 +29,7 @@ MINDCUBE_DATASETS = [
     ("FF_RSN_SFT", "ff_rsn", "MindCube_train_ff_rsn_qwen_sft.json"),
     ("AUG_CGMAP_FFR_OUT_SFT", "aug_cgmap_ffr_out", "MindCube_train_aug_cgmap_ffr_out_qwen_sft.json"),
     ("PLAIN_CGMAP_FFR_OUT_SFT", "plain_cgmap_ffr_out", "MindCube_train_plain_cgmap_ffr_out_qwen_sft.json"),
+    ("CGMAP_IN_FFR_OUT_SFT", "cgmap_in_ffr_out", "MindCube_train_cgmap_in_ffr_out_qwen_sft.json"),
 ]
 
 def generate_dataset_definitions():

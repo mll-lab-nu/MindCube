@@ -103,6 +103,28 @@ Please do step by step reasoning first, then give your final answer. For example
 Below is the cognitive map of the scene related to the question. Please use it to reason and answer the question.
 <grounded_cogmap>'''
 
+CGMAP_IN_CGMAP_OUT_BACKGROUND_INSTRUCTION = '''[Task]
+Your task is to analyze the spatial arrangement of objects in the scene by examining the provided images, which show the scene from different viewpoints. Also, we provide you a cognitive map that shows the general layout for the scene. Please use the cognitive map to reason and answer the question.
+[Answer Instruction]
+1. Based on the provided cognitive map and your analysis, you **MUST** present your updated/refined cognitive map in the following JSON format **before your answer**:
+```json
+{
+  "objects": [
+    {"name": "object_name", "position": [x, y], "facing": "direction"},
+    {"name": "object_without_orientation", "position": [x, y]}
+  ],
+  "views": [
+    {"name": "View 1", "position": [x, y], "facing": "direction"},
+    {"name": "View 2", "position": [x, y], "facing": "direction"}
+  ]
+}
+```
+2. Next, provide *ONE* correct answer selecting from the options. Your answer field must be in the format like "A. Above"
+3. In general, your response's format should be like "Based on my observation, the answer is:\n<cogmap>(Replace with your cogmap here)</cogmap><answer>(Replace with your answer here)</answer>". Your option must be from the available options.
+<cogmap_description>
+Below is the cognitive map of the scene related to the question. Please use it to reason and answer the question.
+<grounded_cogmap>'''
+
 
 class PromptTemplate:
     """Base class for prompt templates."""
@@ -441,6 +463,32 @@ class CGMapInFFROutTemplate(PromptTemplate):
         answer = self._extract_answer_text(question, gt_answer)
         return f"<think>{reasoning_chain}</think><answer>{answer}</answer>"
 
+class CGMapInCGMapOutTemplate(PromptTemplate):
+    """Template for CGMap-In-CGMap-Out tasks."""
+    def __init__(self):
+        super().__init__("cgmap_in_cgmap_out")
+    
+    def generate_prompt(self, data: Dict) -> str:
+        """Generate CGMap-In-CGMap-Out prompt."""
+        question = data.get("question", "")
+        cogmap_description = data.get("grounded_cogmap_description", "")
+        grounded_cogmap = data.get("grounded_cogmap", "")
+        
+        prompt_parts = [
+            CGMAP_IN_CGMAP_OUT_BACKGROUND_INSTRUCTION.replace("<cogmap_description>", cogmap_description).replace("<grounded_cogmap>", grounded_cogmap),
+            self.format_question(question)
+        ]
+        
+        return "\n".join(prompt_parts)
+    
+    def generate_output(self, data: Dict) -> str:
+        """Generate target output for CGMap-In-CGMap-Out."""
+        gt_answer = data.get("gt_answer", "")
+        question = data.get("question", "")
+        grounded_cogmap = data.get("grounded_cogmap", "")
+        answer = self._extract_answer_text(question, gt_answer)
+        
+        return f"Based on my observation, the answer is:\n<cogmap>```json\n{grounded_cogmap}\n```</cogmap><answer>{answer}</answer>"
 
 # Template registry
 TEMPLATE_REGISTRY = {
@@ -452,6 +500,7 @@ TEMPLATE_REGISTRY = {
     "plain_cgmap_ffr_out": PlainCGMapFFROutTemplate(),
     "aug_cgmap_ffr_out": AugCGMapFFROutTemplate(),
     "cgmap_in_ffr_out": CGMapInFFROutTemplate(),
+    "cgmap_in_cgmap_out": CGMapInCGMapOutTemplate(),
 }
 
 

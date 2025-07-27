@@ -9,9 +9,9 @@ import json
 import os
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Literal
-from ..utils import load_jsonl, save_json, ensure_dir
+from ..utils import load_jsonl, save_json, save_jsonl, ensure_dir
 
-ModelType = Literal["qwen2.5vl", "llava", "instructblip"]
+ModelType = Literal["qwen2.5vl", "llava", "instructblip", "internvl"]
 
 
 class ModelDataFormatter(ABC):
@@ -156,6 +156,66 @@ class QwenDataFormatter(ModelDataFormatter):
         base_name = os.path.splitext(input_filename)[0]
         return f"{base_name}_qwen_sft.json"
 
+class InternVLDataFormatter(ModelDataFormatter):
+    """Data formatter for internvl model training format."""
+    
+    def __init__(self):
+        super().__init__("internvl")
+        
+    def format_conversation(self, item: Dict) -> Dict:
+        """
+        Convert prompt item to InternVL conversation format.
+        
+        InternVL format:
+        {
+            "id": 0,
+            "image": ["path1.jpg", "path2.jpg"],
+            "width_list": [111, 222],  # optional
+            "height_list": [111, 222],  # optional
+            "conversations": [
+                {"from": "human", "value": "<image>\n<image>\nQuestion..."},
+                {"from": "gpt", "value": "Answer..."}
+            ]
+        }
+        """
+        images = item["images"]
+        input_prompt = item["input_prompt"]
+        grounded_output = item["grounded_output"]
+        item_id = item.get("id", 0)
+        
+        # Generate image placeholders - one for each image
+        image_placeholders = "\n".join(["<image>" for _ in images])
+        
+        # Combine image placeholders with input prompt
+        human_value = f"{image_placeholders}\n{input_prompt}"
+        
+        conversation = {
+            "id": item_id,
+            "image": images,
+            "conversations": [
+                {
+                    "from": "human",
+                    "value": human_value
+                },
+                {
+                    "from": "gpt",
+                    "value": grounded_output
+                }
+            ]
+        }
+        
+        # Add optional width and height information if available
+        if "width_list" in item:
+            conversation["width_list"] = item["width_list"]
+        if "height_list" in item:
+            conversation["height_list"] = item["height_list"]
+        
+        return conversation
+    
+    def get_output_filename(self, input_filename: str) -> str:
+        """Generate InternVL-specific output filename."""
+        base_name = os.path.splitext(input_filename)[0]
+        return f"{base_name}_internvl_sft.jsonl"
 
 class LlavaDataFormatter(ModelDataFormatter):
     """Data formatter for LLaVA model training format."""
@@ -262,7 +322,8 @@ class InstructBLIPDataFormatter(ModelDataFormatter):
 FORMATTER_REGISTRY = {
     "qwen2.5vl": QwenDataFormatter(),
     "llava": LlavaDataFormatter(),
-    "instructblip": InstructBLIPDataFormatter()
+    "instructblip": InstructBLIPDataFormatter(),
+    "internvl": InternVLDataFormatter()
 }
 
 
@@ -294,7 +355,7 @@ def convert_prompts_to_sft_format(input_file: str, output_file: str,
     
     Args:
         input_file: Path to input JSONL file with prompt data
-        output_file: Path to output JSON file for SFT training
+        output_file: Path to output file for SFT training
         model_type: Target model type for formatting
     """
     print(f"🔄 Converting prompts to {model_type} SFT format...")
@@ -320,7 +381,12 @@ def convert_prompts_to_sft_format(input_file: str, output_file: str,
     # Save output
     try:
         ensure_dir(os.path.dirname(output_file))
-        save_json(converted_data, output_file)
+        # InternVL uses JSONL format, other models use JSON format
+        if model_type == "internvl":
+            save_jsonl(converted_data, output_file)
+        else:
+            # Wrap the list in a dictionary for JSON format
+            save_json(converted_data, output_file)
         print(f"✅ Conversion completed: {output_file}")
         print(f"📊 {len(converted_data)} conversations saved")
     except Exception as e:
@@ -334,7 +400,7 @@ def batch_convert_prompts_to_sft(input_dir: str, output_dir: str,
     
     Args:
         input_dir: Directory containing prompt JSONL files
-        output_dir: Directory to save SFT JSON files
+        output_dir: Directory to save SFT files
         model_type: Target model type for formatting
     """
     print(f"📁 Batch converting prompts to {model_type} SFT format...")

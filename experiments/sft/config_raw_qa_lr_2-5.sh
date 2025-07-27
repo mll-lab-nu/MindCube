@@ -13,11 +13,11 @@ DATASET_NAME="raw_qa"
 MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
 
 # Training hyperparameters
-LEARNING_RATE=1e-5
+LEARNING_RATE=2e-5
 NUM_EPOCHS=3
 
 # Output configuration
-OUTPUT_BASE_DIR="experiments/sft/results/batch_1024"
+OUTPUT_BASE_DIR="experiments/sft/results/lr_2-5"
 RUN_NAME="qwen2vl-${TASK_NAME}_sft"
 
 # Additional training arguments
@@ -25,7 +25,7 @@ MAX_PIXELS=90000
 MIN_PIXELS=784
 MODEL_MAX_LENGTH=8192
 SAVE_STEPS=10000
-SAVE_TOTAL_LIMIT=1
+SAVE_TOTAL_LIMIT=2
 
 echo "Task configuration loaded: ${TASK_NAME}"
 

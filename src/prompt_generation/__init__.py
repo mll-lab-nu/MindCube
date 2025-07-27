@@ -19,7 +19,13 @@ from .processors import (
 from .generators import (
     PromptGenerator,
     RawQAGenerator,
-    FFRSNGenerator
+    FFRSNGenerator,
+    CGMapInCGMapOutGenerator
+)
+
+from .templates import (
+    get_template,
+    list_templates
 )
 
 __all__ = [
@@ -33,5 +39,10 @@ __all__ = [
     # Generator classes
     'PromptGenerator',
     'RawQAGenerator',
-    'FFRSNGenerator'
+    'FFRSNGenerator',
+    'CGMapInCGMapOutGenerator',
+    
+    # Template functions
+    'get_template',
+    'list_templates'
 ] 

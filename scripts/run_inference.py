@@ -59,7 +59,7 @@ Examples:
         "--model-type", 
         type=str, 
         default="qwen2.5vl",
-        help="Type of model to use (qwen2.5vl, gpt4v, etc.)"
+        help="Type of model to use (qwen2.5vl, gpt4v, internvl, etc.)"
     )
     parser.add_argument(
         "--model-path", 
@@ -70,8 +70,8 @@ Examples:
         "--backend", 
         type=str, 
         default="transformers",
-        choices=["transformers", "vllm"],
-        help="Inference backend (transformers or vllm)"
+        choices=["transformers"],
+        help="Inference backend (transformers)"
     )
     
     # Data configuration
@@ -121,6 +121,12 @@ Examples:
         default=1.0,
         help="Top-p for nucleus sampling"
     )
+    parser.add_argument(
+        "--seed", 
+        type=int, 
+        default=None,
+        help="Random seed for generation (enables sampling when provided)"
+    )
     
     # Configuration file
     parser.add_argument(
@@ -156,7 +162,7 @@ Examples:
     return parser
 
 
-def generate_output_filename(input_file: str, model_type: str, model_path: str = None) -> str:
+def generate_output_filename(input_file: str, model_type: str, model_path: str = None, seed: int = None) -> str:
     """
     Generate output filename based on input file and model info.
     
@@ -164,6 +170,7 @@ def generate_output_filename(input_file: str, model_type: str, model_path: str =
         input_file: Path to input file
         model_type: Type of model
         model_path: Path to model (for extracting model name)
+        seed: Random seed (if provided, will be included in filename)
         
     Returns:
         Generated output filename
@@ -182,8 +189,11 @@ def generate_output_filename(input_file: str, model_type: str, model_path: str =
         # Use model type
         model_id = model_type.lower()
     
-    # Generate output filename
-    output_filename = f"{input_stem}_{model_id}_responses.jsonl"
+    # Generate output filename with optional seed
+    if seed is not None:
+        output_filename = f"{input_stem}_{model_id}_seed{seed}_responses.jsonl"
+    else:
+        output_filename = f"{input_stem}_{model_id}_responses.jsonl"
     return output_filename
 
 
@@ -211,6 +221,9 @@ def create_inference_engine(args: argparse.Namespace) -> Any:
             if model_type in ['qwen2.5vl', 'qwen', 'qwen2.5-vl']:
                 args.model_path = "Qwen/Qwen2.5-VL-3B-Instruct"
                 print(f"Using default HuggingFace model: {args.model_path}")
+            elif model_type in ['internvl']:
+                args.model_path = "OpenGVLab/InternVL3-2B"
+                print(f"Using default HuggingFace model: {args.model_path}")
             else:
                 raise ValueError("--model-path is required for open source models")
         
@@ -221,7 +234,8 @@ def create_inference_engine(args: argparse.Namespace) -> Any:
             'generation_config': {
                 'temperature': args.temperature,
                 'top_p': args.top_p,
-                'do_sample': args.temperature > 0
+                'do_sample': args.temperature > 0 or args.seed is not None,
+                'seed': args.seed
             }
         }
         
@@ -366,7 +380,7 @@ def main():
             temp_model_path = args.model_path
             
         output_filename = generate_output_filename(
-            args.input_file, args.model_type, temp_model_path
+            args.input_file, args.model_type, temp_model_path, args.seed
         )
         args.output_file = os.path.join(args.output_dir, output_filename)
         
@@ -402,7 +416,8 @@ def main():
             batch_size=args.batch_size,
             max_new_tokens=args.max_new_tokens,
             temperature=args.temperature,
-            top_p=args.top_p
+            top_p=args.top_p,
+            seed=args.seed
         )
         
         print(f"Inference completed successfully! Results saved to {args.output_file}")

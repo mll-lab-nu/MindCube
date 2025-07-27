@@ -39,20 +39,9 @@ if [[ -n "$TASK_CONFIG_FILE" && -f "$TASK_CONFIG_FILE" ]]; then
     echo "Loading task configuration from: $TASK_CONFIG_FILE"
     source "$TASK_CONFIG_FILE"
 else
-    echo "Using default task configuration"
-    # Default task configuration
-    TASK_NAME="raw_qa"
-    DATASET_NAME="raw_qa"
-    MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
-    LEARNING_RATE=1e-5
-    NUM_EPOCHS=3
-    OUTPUT_BASE_DIR="experiments/sft/results"
-    RUN_NAME="qwen2vl-${TASK_NAME}_sft"
-    MAX_PIXELS=90000
-    MIN_PIXELS=784
-    MODEL_MAX_LENGTH=8192
-    SAVE_STEPS=5
-    SAVE_TOTAL_LIMIT=12
+    echo "❌ Task configuration file '$TASK_CONFIG_FILE' not found!"
+    echo "Please create the task configuration file at: experiments/sft/config_${TASK_NAME}.sh"
+    exit 1
 fi
 
 # Validate that hardware parameters are set
@@ -172,4 +161,4 @@ if [ $? -eq 0 ]; then
 else
     echo "Training failed!"
     exit 1
-fi 
+fi

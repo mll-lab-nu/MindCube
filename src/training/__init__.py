@@ -8,6 +8,7 @@ and provides training utilities.
 from .data_formatters import (
     ModelDataFormatter,
     QwenDataFormatter,
+    InternVLDataFormatter,
     get_formatter,
     list_supported_models,
     convert_prompts_to_sft_format
@@ -16,6 +17,7 @@ from .data_formatters import (
 __all__ = [
     'ModelDataFormatter',
     'QwenDataFormatter', 
+    'InternVLDataFormatter',
     'get_formatter',
     'list_supported_models',
     'convert_prompts_to_sft_format'

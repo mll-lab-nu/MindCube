@@ -72,7 +72,7 @@ Examples:
     
     # Model configuration
     parser.add_argument('--model', '-m',
-                        choices=['qwen2.5vl', 'llava', 'instructblip'],
+                        choices=['qwen2.5vl', 'llava', 'instructblip', 'internvl'],
                         help='Target model type for SFT format')
     
     # Utility arguments

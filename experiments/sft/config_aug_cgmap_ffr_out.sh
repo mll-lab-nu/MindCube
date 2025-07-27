@@ -17,7 +17,7 @@ LEARNING_RATE=1e-5
 NUM_EPOCHS=3
 
 # Output configuration
-OUTPUT_BASE_DIR="experiments/sft/results"
+OUTPUT_BASE_DIR="checkpoints/sft"
 RUN_NAME="qwen2vl-${TASK_NAME}_sft"
 
 # Additional training arguments
