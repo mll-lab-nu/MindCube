@@ -55,14 +55,14 @@ echo "📅 Start time: $(date)"
 MODEL_TYPE="qwen2.5vl"
 TASK_NAME="cgmap_in_ffr_out"
 INPUT_FILE="./data/prompts/general/MindCube_tinybench_${TASK_NAME}.jsonl"
-OUTPUT_BASE_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results/cgmap_in_ffr_out"
+OUTPUT_BASE_DIR="/workspace/MindCube/tmp_results/cgmap_in_ffr_out"
 LOG_DIR="./logs/cgmap_in_ffr_out_inference"
 MONITOR_INTERVAL=30  # seconds between status checks
 
 # Define the two specific checkpoints
 CHECKPOINT_PATHS=(
-    "/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/checkpoints/sft/cgmap_in_ffr_out_llm_only/checkpoint-57"
-    "/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/checkpoints/sft/cgmap_in_ffr_out_all_parts/checkpoint-57"
+    "/workspace/MindCube/checkpoints/sft/cgmap_in_ffr_out_llm_only/checkpoint-57"
+    "/workspace/MindCube/checkpoints/sft/cgmap_in_ffr_out_all_parts/checkpoint-57"
 )
 
 CHECKPOINT_NAMES=(

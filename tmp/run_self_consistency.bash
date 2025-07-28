@@ -25,8 +25,8 @@ show_usage() {
 }
 
 # Default values
-INPUT_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results/frozen_multi_seeds"
-OUTPUT_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results/self_consistency"
+INPUT_DIR="/workspace/MindCube/tmp_results/frozen_multi_seeds"
+OUTPUT_DIR="/workspace/MindCube/tmp_results/self_consistency"
 STRATEGY="majority"
 SEEDS="42,123,456"
 

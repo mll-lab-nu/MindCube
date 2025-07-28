@@ -95,7 +95,8 @@ Examples:
                            'raw_qa', 'ff_rsn', 
                            'aug_cgmap_in', 'aug_cgmap_out', 'plain_cgmap_out',
                            'plain_cgmap_ffr_out', 'aug_cgmap_ffr_out', 'cgmap_in_ffr_out', 
-                           'cgmap_in_cgmap_out'
+                           'cgmap_in_cgmap_out',
+                           'noformat_ff_rsn', 'nl_cgmap_in_ffr_out', 'nl_aug_cgmap_ffr_out', 'nl_plain_cgmap_ffr_out'
                        ],
                        default=None,
                        help='Specific task type to generate (auto-detected if not specified)')

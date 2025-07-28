@@ -37,8 +37,8 @@ echo "  $0 --multi-seed-suffix sft_multi_seeds  # Use SFT results instead of fro
 # Default values
 MULTI_SEED_DIR=""  # Will be constructed from suffix if not provided
 MULTI_SEED_SUFFIX="frozen_multi_seeds"
-CONSENSUS_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results/self_consistency"
-OUTPUT_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results/meta_analysis"
+CONSENSUS_DIR="/workspace/MindCube/tmp_results/self_consistency"
+OUTPUT_DIR="/workspace/MindCube/tmp_results/meta_analysis"
 STRATEGY="majority"
 SEEDS="42,123,456"
 TASKS="raw_qa,aug_cgmap_in,ff_rsn,aug_cgmap_ffr_out,plain_cgmap_ffr_out,cgmap_in_ffr_out"
@@ -97,7 +97,7 @@ done
 
 # Determine multi-seed directory
 if [ -z "${MULTI_SEED_DIR}" ]; then
-    MULTI_SEED_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results/${MULTI_SEED_SUFFIX}"
+    MULTI_SEED_DIR="/workspace/MindCube/tmp_results/${MULTI_SEED_SUFFIX}"
 fi
 
 echo "🔬 MindCube Meta Evaluation Pipeline"

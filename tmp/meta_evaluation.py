@@ -581,7 +581,7 @@ def main():
         multi_seed_dir = args.multi_seed_dir
     else:
         # Construct path using suffix
-        base_dir = "/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results"
+        base_dir = "/workspace/MindCube/tmp_results"
         multi_seed_dir = os.path.join(base_dir, args.multi_seed_suffix)
     
     # Parse inputs

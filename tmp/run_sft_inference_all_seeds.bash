@@ -51,8 +51,8 @@ echo "📅 Start time: $(date)"
 # Configuration
 MODEL_TYPE="qwen2.5vl"
 INPUT_DIR="./data/prompts/general"
-CHECKPOINT_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/checkpoints/sft"
-OUTPUT_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results/sft_multi_seeds"
+CHECKPOINT_DIR="/workspace/MindCube/checkpoints/sft"
+OUTPUT_DIR="/workspace/MindCube/tmp_results/sft_multi_seeds"
 LOG_DIR="./logs/sft_inference_multi_seeds"
 MONITOR_INTERVAL=30  # seconds between status checks
 

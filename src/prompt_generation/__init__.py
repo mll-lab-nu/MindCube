@@ -20,7 +20,11 @@ from .generators import (
     PromptGenerator,
     RawQAGenerator,
     FFRSNGenerator,
-    CGMapInCGMapOutGenerator
+    CGMapInCGMapOutGenerator,
+    NoFormatFFRSNGenerator,
+    NLCGMapInFFROutGenerator,
+    NLAugCGMapFFROutGenerator,
+    NLPlainCGMapFFROutGenerator
 )
 
 from .templates import (
@@ -41,8 +45,12 @@ __all__ = [
     'RawQAGenerator',
     'FFRSNGenerator',
     'CGMapInCGMapOutGenerator',
+    'NoFormatFFRSNGenerator',
+    'NLCGMapInFFROutGenerator',
+    'NLAugCGMapFFROutGenerator',
+    'NLPlainCGMapFFROutGenerator',
     
     # Template functions
     'get_template',
-    'list_templates'
+    'list_templates',
 ] 

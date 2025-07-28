@@ -13,7 +13,8 @@ from .templates import get_template, list_templates
 TaskType = Literal[
     "raw_qa", "ff_rsn", 
     "aug_cgmap_in", "aug_cgmap_out", "plain_cgmap_out", 
-    "plain_cgmap_ffr_out", "aug_cgmap_ffr_out", "cgmap_in_ffr_out", "cgmap_in_cgmap_out"
+    "plain_cgmap_ffr_out", "aug_cgmap_ffr_out", "cgmap_in_ffr_out", "cgmap_in_cgmap_out",
+    "noformat_ff_rsn", "nl_cgmap_in_ffr_out", "nl_aug_cgmap_ffr_out", "nl_plain_cgmap_ffr_out"
 ]
 
 
@@ -206,6 +207,70 @@ class CGMapInFFROutGenerator(PromptGenerator):
         return ["id", "question", "gt_answer", "grounded_cogmap", "reasoning_chain"]
 
 
+class NoFormatFFRSNGenerator(PromptGenerator):
+    """Generator for NoFormat-FF-RSN tasks."""
+    
+    def __init__(self):
+        super().__init__("noformat_ff_rsn")
+    
+    def validate_item(self, item: Dict) -> bool:
+        """Validate item for NoFormat-FF-RSN generation."""
+        if not super().validate_item(item):
+            return False
+        return "reasoning_chain" in item
+    
+    def get_required_fields(self) -> List[str]:
+        return ["id", "question", "gt_answer", "reasoning_chain"]
+
+
+class NLCGMapInFFROutGenerator(PromptGenerator):
+    """Generator for NL-CGMap-In-FFR-Out tasks using natural language cognitive maps."""
+    
+    def __init__(self):
+        super().__init__("nl_cgmap_in_ffr_out")
+    
+    def validate_item(self, item: Dict) -> bool:
+        """Validate item for NL-CGMap-In-FFR-Out generation."""
+        if not super().validate_item(item):
+            return False
+        return "reasoning_chain" in item and "grounded_cogmap" in item
+    
+    def get_required_fields(self) -> List[str]:
+        return ["id", "question", "gt_answer", "grounded_cogmap", "reasoning_chain"]
+
+
+class NLAugCGMapFFROutGenerator(PromptGenerator):
+    """Generator for NL-Aug-CGMap-FFR-Out tasks using natural language cognitive maps."""
+    
+    def __init__(self):
+        super().__init__("nl_aug_cgmap_ffr_out")
+    
+    def validate_item(self, item: Dict) -> bool:
+        """Validate item for NL-Aug-CGMap-FFR-Out generation."""
+        if not super().validate_item(item):
+            return False
+        return "reasoning_chain" in item and "grounded_cogmap" in item
+    
+    def get_required_fields(self) -> List[str]:
+        return ["id", "question", "gt_answer", "grounded_cogmap", "reasoning_chain"]
+
+
+class NLPlainCGMapFFROutGenerator(PromptGenerator):
+    """Generator for NL-Plain-CGMap-FFR-Out tasks using natural language cognitive maps."""
+    
+    def __init__(self):
+        super().__init__("nl_plain_cgmap_ffr_out")
+    
+    def validate_item(self, item: Dict) -> bool:
+        """Validate item for NL-Plain-CGMap-FFR-Out generation."""
+        if not super().validate_item(item):
+            return False
+        return "reasoning_chain" in item and "grounded_cogmap" in item
+    
+    def get_required_fields(self) -> List[str]:
+        return ["id", "question", "gt_answer", "grounded_cogmap", "reasoning_chain"]
+
+
 # Generator registry
 GENERATOR_REGISTRY = {
     "raw_qa": RawQAGenerator(),
@@ -217,6 +282,10 @@ GENERATOR_REGISTRY = {
     "aug_cgmap_ffr_out": AugCGMapFFROutGenerator(),
     "cgmap_in_ffr_out": CGMapInFFROutGenerator(),
     "cgmap_in_cgmap_out": CGMapInCGMapOutGenerator(),
+    "noformat_ff_rsn": NoFormatFFRSNGenerator(),
+    "nl_cgmap_in_ffr_out": NLCGMapInFFROutGenerator(),
+    "nl_aug_cgmap_ffr_out": NLAugCGMapFFROutGenerator(),
+    "nl_plain_cgmap_ffr_out": NLPlainCGMapFFROutGenerator(),
 }
 
 

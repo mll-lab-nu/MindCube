@@ -52,9 +52,9 @@ echo "📅 Start time: $(date)"
 # Configuration
 MODEL_TYPE="qwen2.5vl"
 INPUT_FILE="./data/prompts/general/MindCube_tinybench_raw_qa.jsonl"
-OUTPUT_BASE_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/tmp_results/hp_ablation"
+OUTPUT_BASE_DIR="/workspace/MindCube/tmp_results/hp_ablation"
 LOG_DIR="./logs/hp_ablation_inference"
-EXPERIMENTS_BASE_DIR="/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/experiments/sft/tmp"
+EXPERIMENTS_BASE_DIR="/workspace/MindCube/experiments/sft/tmp"
 MONITOR_INTERVAL=30  # seconds between status checks
 
 # Force GPU count to 4 as specified

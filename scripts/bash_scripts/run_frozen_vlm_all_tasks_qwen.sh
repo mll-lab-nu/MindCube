@@ -56,12 +56,17 @@ MONITOR_INTERVAL=30  # seconds between status checks
 
 # Task list (6 tasks total)
 TASKS=(
-    "raw_qa"
-    "aug_cgmap_in" 
-    "ff_rsn"
-    "aug_cgmap_ffr_out"
-    "plain_cgmap_ffr_out"
-    "cgmap_in_ffr_out"
+    # "raw_qa"
+    # "aug_cgmap_in" 
+    # "ff_rsn"
+    # "aug_cgmap_ffr_out"
+    # "plain_cgmap_ffr_out"
+    # "cgmap_in_ffr_out"
+    # "cgmap_in_cgmap_out"
+    "noformat_ff_rsn"
+    "nl_cgmap_in_ffr_out"
+    "nl_aug_cgmap_ffr_out"
+    "nl_plain_cgmap_ffr_out"
 )
 
 # Create necessary directories

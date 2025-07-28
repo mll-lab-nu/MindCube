@@ -27,9 +27,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-updated_root = '/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/data/'
-file_path = "/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/data/prompts/general/MindCube_tinybench_raw_qa.jsonl"
-output_folder = "/projects/b1222/userdata/qineng/01_projects/07_MindCube_new/data/results/o3"
+updated_root = '/workspace/MindCube/data/'
+file_path = "/workspace/MindCube/data/prompts/general/MindCube_tinybench_raw_qa.jsonl"
+output_folder = "/workspace/MindCube/data/results/o3"
 output_path = os.path.join(output_folder, "mindcube_o3_raw_qa_responses.jsonl")
 model_id = "o3-2025-04-16"
 NUM_PROCESSES = 64
