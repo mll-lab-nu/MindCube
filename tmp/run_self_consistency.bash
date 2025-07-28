@@ -73,6 +73,8 @@ echo ""
 TASKS=(
     "raw_qa"
     "aug_cgmap_in" 
+    "aug_cgmap_out"
+    "plain_cgmap_out"
     "ff_rsn"
     "aug_cgmap_ffr_out"
     "plain_cgmap_ffr_out"

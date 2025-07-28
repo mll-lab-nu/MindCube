@@ -6,6 +6,29 @@
 # 2. Meta evaluation comparing multi-seed vs consensus results
 # 3. Summary report generation
 
+# Check and activate the mindcube conda environment if needed
+if [[ "$CONDA_DEFAULT_ENV" != "mindcube" ]]; then
+    echo "🔧 Activating mindcube conda environment..."
+    # Try to activate conda environment
+    if command -v conda >/dev/null 2>&1; then
+        eval "$(conda shell.bash hook)"
+        conda activate mindcube
+        if [ $? -ne 0 ]; then
+            echo "❌ Error: Failed to activate mindcube conda environment"
+            echo "💡 Make sure you have mindcube environment set up"
+            echo "💡 Run: conda create -n mindcube python=3.8"
+            exit 1
+        fi
+        echo "✅ Successfully activated mindcube environment"
+    else
+        echo "❌ Error: conda command not found"
+        echo "💡 Make sure you have conda installed and available in PATH"
+        exit 1
+    fi
+else
+    echo "✅ Already in mindcube environment"
+fi
+
 # Function to show usage
 show_usage() {
     echo "Usage: $0 [OPTIONS]"
@@ -36,12 +59,12 @@ echo "  $0 --multi-seed-suffix sft_multi_seeds  # Use SFT results instead of fro
 
 # Default values
 MULTI_SEED_DIR=""  # Will be constructed from suffix if not provided
-MULTI_SEED_SUFFIX="frozen_multi_seeds"
+MULTI_SEED_SUFFIX="sft_multi_seeds"
 CONSENSUS_DIR="/workspace/MindCube/tmp_results/self_consistency"
 OUTPUT_DIR="/workspace/MindCube/tmp_results/meta_analysis"
 STRATEGY="majority"
 SEEDS="42,123,456"
-TASKS="raw_qa,aug_cgmap_in,ff_rsn,aug_cgmap_ffr_out,plain_cgmap_ffr_out,cgmap_in_ffr_out"
+TASKS="raw_qa,ff_rsn,aug_cgmap_out,plain_cgmap_out,aug_cgmap_ffr_out,plain_cgmap_ffr_out"
 SKIP_CONSENSUS=false
 
 # Parse command line arguments
