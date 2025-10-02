@@ -11,7 +11,7 @@ echo "📅 Start time: $(date)"
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-SFT_DIR="${PROJECT_ROOT}/experiments/sft"
+SFT_DIR="${PROJECT_ROOT}/checkpoints/sft"
 LOG_DIR="${PROJECT_ROOT}/logs/sft_training"
 TRAINING_SCRIPT="${SFT_DIR}/train_qwen_sft.sh"
 
