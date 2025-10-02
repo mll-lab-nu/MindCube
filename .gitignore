@@ -8,3 +8,6 @@ tmp*/
 **__pycache__**
 Qwen2.5-VL/
 *.log
+Qwen2.5-VL*
+experiments/sft/*
+.env

@@ -16,6 +16,8 @@ import os
 import re
 from typing import Tuple, Dict, List, Union, Optional
 from ...utils import load_jsonl, save_jsonl, normalize_direction
+import random
+random.seed(42)
 
 
 # Constants from original file (preserved unchanged)
@@ -733,6 +735,8 @@ class CogMapGenerator:
         """
         try:
             cogmap_str, main_objects, oriented_objects = self.generate_for_item(item)
+            random.shuffle(main_objects)
+            random.shuffle(oriented_objects)
             
             # Determine format-specific configurations
             item_id = item.get("id", "")
