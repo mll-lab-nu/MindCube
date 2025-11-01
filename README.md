@@ -443,6 +443,11 @@ python scripts/run_evaluation.py --help
 - [ ] Add RL Training Description
 - [ ] Release RL Training Checkpoints
 
+
+## RL Data
+
+You could find a raw version of our RL training data at here: https://huggingface.co/datasets/yinbq/MindCube_RL/tree/main
+
 ## 🔗 Other MLL-Lab Projects
 
 Explore other exciting projects from our **MLL-Lab**:
