@@ -7,33 +7,35 @@
 <div align="center">
 
 [![arXiv](https://img.shields.io/badge/arXiv-2506.21458-b31b1b.svg)](https://arxiv.org/abs/2506.21458)
+[![Paper](https://img.shields.io/badge/📄-Paper_(PDF)-red.svg)](https://mind-cube.github.io/mindcube.pdf)
 [![Homepage](https://img.shields.io/badge/🏠-Homepage-blue.svg)](https://mind-cube.github.io/)
 [![Dataset](https://img.shields.io/badge/🤗-Dataset-yellow.svg)](https://huggingface.co/datasets/MLL-Lab/MindCube)
 [![Checkpoints](https://img.shields.io/badge/🤗-Checkpoints-green.svg)](https://huggingface.co/MLL-Lab/models)
 
 </div>
 <p align="center">
-    <a href="https://openreview.net/profile?id=~Baiqiao_Yin2">Baiqiao Yin<sup>1, 3*</sup></a>, 
-    <a href="https://qinengwang-aiden.github.io/">Qineng Wang<sup>1*‡</sup></a>, 
-    <a href="https://williamzhangsjtu.github.io/">Pingyue Zhang<sup>1</sup></a>, 
-    <a href="https://sterzhang.github.io/">Jianshu Zhang<sup>1</sup></a>, 
-    <a href="https://jameskrw.github.io/">Kangrui Wang<sup>1</sup></a>, 
-    <a href="https://zihanwang314.github.io/">Zihan Wang<sup>1</sup></a>, 
-    <a href="https://jieyuz2.github.io/">Jieyu Zhang<sup>4</sup></a>, 
-    <a href="https://keshik6.github.io/">Keshigeyan Chandrasegaran<sup>2</sup></a>, 
-    <a href="https://www.mccormick.northwestern.edu/research-faculty/directory/profiles/liu-han.html">Han Liu<sup>1</sup></a>, 
-    <a href="https://ranjaykrishna.com/index.html">Ranjay Krishna<sup>4</sup></a>, 
-    <a href="https://www.sainingxie.com/">Saining Xie<sup>3</sup></a>, 
-    <a href="https://limanling.github.io/">Manling Li†<sup>1</sup></a>, 
-    <a href="https://jiajunwu.com/">Jiajun Wu<sup>2†</sup></a>, 
-    <a href="https://profiles.stanford.edu/fei-fei-li">Li Fei-Fei<sup>2†</sup></a>
+    <a href="https://qinengwang-aiden.github.io/">Qineng Wang<sup>1*</sup></a>,
+    <a href="https://openreview.net/profile?id=~Baiqiao_Yin2">Baiqiao Yin<sup>1, 3*</sup></a>,
+    <a href="https://williamzhangsjtu.github.io/">Pingyue Zhang<sup>1</sup></a>,
+    <a href="https://sterzhang.github.io/">Jianshu Zhang<sup>1</sup></a>,
+    <a href="https://jameskrw.github.io/">Kangrui Wang<sup>1</sup></a>,
+    <a href="https://zihanwang314.github.io/">Zihan Wang<sup>1</sup></a>,
+    <a href="https://jieyuz2.github.io/">Jieyu Zhang<sup>4</sup></a>,
+    <a href="https://keshik6.github.io/">Keshigeyan Chandrasegaran<sup>2</sup></a>,
+    <a href="https://www.mccormick.northwestern.edu/research-faculty/directory/profiles/liu-han.html">Han Liu<sup>1</sup></a>,
+    <a href="https://ranjaykrishna.com/index.html">Ranjay Krishna<sup>4</sup></a>,
+    <a href="https://www.sainingxie.com/">Saining Xie<sup>3</sup></a>,
+    <a href="https://jiajunwu.com/">Jiajun Wu<sup>2†</sup></a>,
+    <a href="https://profiles.stanford.edu/fei-fei-li">Li Fei-Fei<sup>2†</sup></a>,
+    <a href="https://limanling.github.io/">Manling Li<sup>1†</sup></a>
 </p>
-<p align="center">*Equal contribution, ‡Project Lead, †Equal advising</p>
+<p align="center">*Equal contribution (listing in alphabetical order), †Equal advising</p>
 <p align="center"><sup>1</sup>Northwestern University, <sup>2</sup>Stanford University, <sup>3</sup>New York University, <sup>4</sup>University of Washington</p>
 
 
 ## 📢 Updates
 
+- **[2026-03-23]** We release the RL [training recipe](https://github.com/mll-lab-nu/VAGEN/tree/MindCube) and [checkpoints](https://huggingface.co/MLL-Lab/MindCube-RL-PlainCogMap-FromSFT). We also update our codebase and data (fixed some data bugs, so some reproduced results may differ from the previous version). The latest results and latest reproduced results can be found in our [paper](https://mind-cube.github.io/mindcube.pdf).
 - **[2025-06-26]** Our paper is available on arXiv, check it out [here](https://arxiv.org/abs/2506.21458).
 - **[2025-06-24]** Our website is online, check it out [here](https://mind-cube.github.io/).
 - **[2025-06-23]** We open-source the MindCube framework and dataset.
@@ -211,6 +213,8 @@ Evaluation results will be organized for easy interpretation and comparison:
 ## 🏋️ SFT Training (from `Qwen2.5VL-3B-Instruct`)
 
 This section guides you through supervised fine-tuning (SFT) to adapt pre-trained models specifically for spatial reasoning tasks.
+
+> **Note:** We publicly release the `raw_qa` SFT checkpoint on [HuggingFace](https://huggingface.co/MLL-Lab/models). You can follow the instructions below to reproduce the training for all task configurations.
 
 ### (Optional) Step 0: Environment Setup
 
@@ -408,6 +412,21 @@ Evaluation results will show the effectiveness of your fine-tuning approach:
 
 ---
 
+## 🧠 RL Training
+
+We also provide a reinforcement learning (RL) training recipe for MindCube.
+
+### RL Training Recipe
+
+Please refer to the [RL training branch](https://github.com/mll-lab-nu/VAGEN/tree/MindCube) for the full training recipe and instructions.
+
+### RL Checkpoints
+
+The RL-trained checkpoint is available on HuggingFace: [![Checkpoints](https://img.shields.io/badge/🤗-RL_Checkpoints-green.svg)](https://huggingface.co/MLL-Lab/MindCube-RL-PlainCogMap-FromSFT)
+
+
+---
+
 ## 🔄 Processing Pipeline Overview
 
 ```
@@ -440,19 +459,16 @@ python scripts/run_evaluation.py --help
 
 ## 🗒️ Checklist
 
-- [ ] Add RL Training Description
-- [ ] Release RL Training Checkpoints
+- [x] Add RL Training Description
+- [x] Release RL Training Checkpoints
 
-
-## RL Data
-
-You could find a raw version of our RL training data at here: https://huggingface.co/datasets/yinbq/MindCube_RL/tree/main
 
 ## 🔗 Other MLL-Lab Projects
 
 Explore other exciting projects from our **MLL-Lab**:
 
-- **[EAI](https://embodied-agent-interface.github.io/)** 
+- **[EAI](https://embodied-agent-interface.github.io/)**
+- **[ENACT](https://enact-embodied-cognition.github.io/)**
 - **[RAGEN](https://ragen-ai.github.io/)**
 - **[VAGEN](https://github.com/RAGEN-AI/VAGEN)**
 
