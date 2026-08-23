@@ -44,6 +44,8 @@
 
 MindCube is a modular framework for generating and evaluating spatial reasoning datasets for multimodal AI models. The project follows a complete pipeline from raw data to model evaluation, with specialized modules for scaffold data curation, prompt generation, model inference, training, and comprehensive evaluation.
 
+This is the official code repository for the paper [MindCube: Spatial Mental Modeling from Limited Views](https://arxiv.org/abs/2506.21458) (arXiv 2506.21458). The MindCube benchmark asks whether Vision-Language Models (VLMs) can imagine a full scene from just a few views, the way humans form spatial mental models of unseen space. It contains 21,154 questions across 3,268 images, testing spatial reasoning about positions (cognitive mapping), orientations (perspective-taking), and dynamics (mental simulation for "what-if" movements); existing VLMs show near-random performance. The most effective approach, "map-then-reason", jointly trains a model to first generate a cognitive map from limited views and then reason over it, improving accuracy from 37.8% to 57.8%; adding reinforcement learning pushes performance further to 61.3%. See the [project page](https://mind-cube.github.io/) and the [MindCube dataset on Hugging Face](https://huggingface.co/datasets/MLL-Lab/MindCube) for more details.
+
 ## ⚙️ Environment Setup
 
 Follow these steps to set up your development environment. This process will create an isolated Python environment with all necessary dependencies for running MindCube.
@@ -461,6 +463,23 @@ python scripts/run_evaluation.py --help
 
 - [x] Add RL Training Description
 - [x] Release RL Training Checkpoints
+
+
+## 📖 Citation
+
+If you find MindCube useful in your research, please cite our paper:
+
+```bibtex
+@misc{wang2025mindcube,
+      title={MindCube: Spatial Mental Modeling from Limited Views},
+      author={Qineng Wang and Baiqiao Yin and Pingyue Zhang and Jianshu Zhang and Kangrui Wang and Zihan Wang and Jieyu Zhang and Keshigeyan Chandrasegaran and Han Liu and Ranjay Krishna and Saining Xie and Jiajun Wu and Li Fei-Fei and Manling Li},
+      year={2025},
+      eprint={2506.21458},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2506.21458},
+}
+```
 
 
 ## 🔗 Other MLL-Lab Projects
